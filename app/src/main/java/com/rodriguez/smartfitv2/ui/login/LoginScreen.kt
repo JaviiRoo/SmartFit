@@ -30,7 +30,7 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Bienvenido", style = MaterialTheme.typography.headlineLarge)
+            Text("Bienvenida", style = MaterialTheme.typography.headlineLarge)
             Spacer(modifier = Modifier.height(24.dp))
 
             OutlinedTextField(
