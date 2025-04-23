@@ -12,6 +12,7 @@ import com.rodriguez.smartfitv2.viewmodel.RegisterViewModel
 
 @Composable
 fun RegisterScreen(navController: NavController, registerViewModel: RegisterViewModel = viewModel()) {
+    var name by remember { mutableStateOf("") }  // Campo para el nombre
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -29,6 +30,17 @@ fun RegisterScreen(navController: NavController, registerViewModel: RegisterView
         ) {
             Text("Crear Cuenta", style = MaterialTheme.typography.headlineLarge)
             Spacer(modifier = Modifier.height(24.dp))
+
+            // Campo para el nombre
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Nombre completo") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedTextField(
                 value = email,
@@ -50,24 +62,42 @@ fun RegisterScreen(navController: NavController, registerViewModel: RegisterView
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            // Botón Aceptar (para registrarse)
             Button(
                 onClick = {
+                    // Ahora pasamos 'name', 'email' y 'password'
                     registerViewModel.registerUser(
+                        name,
                         email,
                         password,
                         onSuccess = {
-                            navController.navigate("login")
+                            navController.navigate("login") // Navegar a login después de registrar
                         },
                         onError = { error ->
                             errorMessage = error
                         }
                     )
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
-                Text("Registrarse")
+                Text("Aceptar")
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Botón Cancelar (para cancelar el registro y volver)
+            OutlinedButton(
+                onClick = {
+                    navController.popBackStack() // Navegar hacia atrás (cancelar registro)
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.outlinedButtonColors(containerColor = MaterialTheme.colorScheme.error)
+            ) {
+                Text("Cancelar")
+            }
+
+            // Mostrar error si existe
             errorMessage?.let {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(text = it, color = MaterialTheme.colorScheme.error)
