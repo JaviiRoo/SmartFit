@@ -1,4 +1,3 @@
-// Declaración del paquete donde se encuentra esta pantalla
 package com.rodriguez.smartfitv2.ui.login
 
 // Importaciones necesarias para el diseño y funcionalidad de la UI
@@ -86,7 +85,6 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
                 // Muestra los caracteres o los oculta dependiendo del estado
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
-                    // Ícono que alterna visibilidad de la contraseña
                     val icon = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
                         Icon(imageVector = icon, contentDescription = "Toggle password visibility")

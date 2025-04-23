@@ -13,22 +13,25 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
 
     private val userDao = AppDatabase.getDatabase(application).userDao()
     private val repository = UserRepository(userDao)
-<<<<<<< HEAD
 
-    fun registerUser(name: String, email: String, password: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
-=======
-    //Registrar usuario
-    fun registerUser(email: String, password: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
->>>>>>> 995490912e1787c956302055a95916d747f7bcfb
-        viewModelScope.launch {
-            try {
-                val user = User(name, email, password)
-                repository.registerUser(user)
-                Log.d("RegisterViewModel", "Usuario registrado: $email")
-                onSuccess()
-            } catch (e: Exception) {
-                onError(e.message ?: "Error al registrar el usuario")
+        //Registrar usuario
+        fun registerUser(
+            name: String,
+            email: String,
+            password: String,
+            onSuccess: () -> Unit,
+            onError: (String) -> Unit
+        ) {
+
+            viewModelScope.launch {
+                try {
+                    val user = User(name, email, password)
+                    repository.registerUser(user)
+                    Log.d("RegisterViewModel", "Usuario registrado: $email")
+                    onSuccess()
+                } catch (e: Exception) {
+                    onError(e.message ?: "Error al registrar el usuario")
+                }
             }
         }
     }
-}
