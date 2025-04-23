@@ -13,7 +13,7 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
 
     private val userDao = AppDatabase.getDatabase(application).userDao()
     private val repository = UserRepository(userDao)
-
+    //Registrar usuario
     fun registerUser(email: String, password: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
             try {
