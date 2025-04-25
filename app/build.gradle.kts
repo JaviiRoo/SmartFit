@@ -58,6 +58,8 @@ dependencies {
     implementation(libs.ui)
     implementation(libs.material3)
     implementation(libs.androidx.navigation.compose)
+    implementation("androidx.compose.animation:animation:1.7.8")
+    implementation ("androidx.compose.material:material-icons-extended")
 
     // ROOM
     val roomVersion = "2.6.1"
