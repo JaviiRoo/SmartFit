@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.rodriguez.smartfitv2.ui.home.HomeScreen
+import com.rodriguez.smartfitv2.ui.home.HomeScreenContent // Importa HomeScreenContent
 import com.rodriguez.smartfitv2.ui.login.LoginScreen
 import com.rodriguez.smartfitv2.ui.register.RegisterScreen
 
@@ -18,8 +18,7 @@ fun AppNavigation(navController: NavHostController) {
             RegisterScreen(navController)
         }
         composable("home") {
-            HomeScreen(navController)
+            HomeScreenContent() // Llama a la función Composable directamente
         }
-
     }
 }
