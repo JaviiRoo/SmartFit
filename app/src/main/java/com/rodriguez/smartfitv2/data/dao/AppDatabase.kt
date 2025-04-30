@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+<<<<<<< HEAD
 import androidx.room.TypeConverters
 import com.rodriguez.smartfitv2.data.model.User
 import com.rodriguez.smartfitv2.data.model.MedidasHombre
@@ -27,6 +28,19 @@ abstract class AppDatabase : RoomDatabase() {
     companion object {
         @Volatile private var INSTANCE: AppDatabase? = null
 
+=======
+import com.rodriguez.smartfitv2.data.model.User
+
+@Database(entities = [User::class], version = 5)
+abstract class AppDatabase : RoomDatabase() {
+
+    abstract fun userDao(): UserDao
+
+    companion object {
+        @Volatile
+        private var INSTANCE: AppDatabase? = null
+
+>>>>>>> b2770a7067bb9e9421ba38d97edf24a1d44beb14
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -34,7 +48,11 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "smartfit_database"
                 )
+<<<<<<< HEAD
                     .fallbackToDestructiveMigration()
+=======
+                    .fallbackToDestructiveMigration() // ⚠️ Esto borra la base si hay cambios en el esquema
+>>>>>>> b2770a7067bb9e9421ba38d97edf24a1d44beb14
                     .build()
                 INSTANCE = instance
                 instance

@@ -54,9 +54,6 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
             horizontalAlignment = Alignment.CenterHorizontally // Centra horizontalmente
         ) {
 
-            Text("Bienvenida", style = MaterialTheme.typography.headlineLarge)
-            Spacer(modifier = Modifier.height(24.dp))
-
             // Título de bienvenida
             Text("¡Bienvenido a SmartFit!", style = MaterialTheme.typography.headlineLarge)
             Spacer(modifier = Modifier.height(24.dp)) // Espacio debajo del título

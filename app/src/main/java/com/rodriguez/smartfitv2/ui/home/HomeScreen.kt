@@ -2,7 +2,6 @@ package com.rodriguez.smartfitv2.ui.home
 
 import android.util.Log
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -10,22 +9,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Mic
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -44,19 +38,19 @@ fun HomeScreen(navController: NavController, userName: String = "Usuario", userP
                 modifier = Modifier.fillMaxSize()
             )
 
-            // TopBar
-            Column(
+            IconButton(
+                onClick = { navController.navigate("profile") },
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(WindowInsets.statusBars.asPaddingValues())
-                    .align(Alignment.TopCenter),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .align(Alignment.TopEnd)
+                    .padding(16.dp)
             ) {
-                TopBar(
-                    onMenuClick = { Log.d("SFIT", "Menú pulsado") },
-                    onProfileClick = { Log.d("SFIT", "Perfil pulsado") }
+                Icon(
+                    imageVector = Icons.Default.AccountCircle,
+                    contentDescription = "Perfil",
+                    tint = Color.White
                 )
             }
+
 
             // Cinta métrica + texto
             Column(
@@ -80,27 +74,13 @@ fun HomeScreen(navController: NavController, userName: String = "Usuario", userP
                 )
             }
 
-            // Texto SFIT centrado
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.Center)
+            Button(
+                onClick = { navController.navigate("favorites") },
+                modifier = Modifier.padding(top = 16.dp)
             ) {
-                Text(
-                    text = "SFIT",
-                    style = TextStyle(
-                        fontSize = 126.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFFFFD550),
-                        shadow = Shadow(
-                            color = Color(0xFFBCAAA4),
-                            offset = Offset(4f, 4f),
-                            blurRadius = 8f
-                        )
-                    ),
-                    modifier = Modifier.align(Alignment.Center)
-                )
+                Text("Ver favoritos")
             }
+
 
             // Barra de búsqueda
             Column(
@@ -111,12 +91,27 @@ fun HomeScreen(navController: NavController, userName: String = "Usuario", userP
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 SearchBarWithIcons(
-                    onSearchClick = { Log.d("SFIT", "Lupa pulsada") },
-                    onCameraClick = { Log.d("SFIT", "Cámara pulsada") },
+                    onSearchClick = {
+                        navController.navigate("catalog")
+                    },
+                    onCameraClick = {
+                        navController.navigate("qrscanner")
+                    },
                     onMicClick = { Log.d("SFIT", "Micrófono pulsado") }
                 )
 
                 Spacer(modifier = Modifier.height(32.dp))
+
+                Button(
+                    onClick = { navController.navigate("measurement_history") },
+                    modifier = Modifier
+                        .fillMaxWidth(0.85f)
+                        .padding(top = 8.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                ) {
+                    Text("Historial de Medidas", color = Color.White)
+                }
+
 
                 // Botón cerrar sesión
                 Button(
@@ -136,51 +131,10 @@ fun HomeScreen(navController: NavController, userName: String = "Usuario", userP
 }
 
 @Composable
-fun TopBar(
-    onMenuClick: () -> Unit,
-    onProfileClick: () -> Unit
-) {
-    val purple = Color(0xFF9C27B0)
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            imageVector = Icons.Filled.Menu,
-            contentDescription = "Menú",
-            tint = purple,
-            modifier = Modifier
-                .size(32.dp)
-                .clickable { onMenuClick() }
-        )
-        Spacer(modifier = Modifier.weight(1f))
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.clickable { onProfileClick() }
-        ) {
-            Icon(
-                imageVector = Icons.Filled.AccountCircle,
-                contentDescription = "Perfil",
-                tint = purple,
-                modifier = Modifier.size(32.dp)
-            )
-            Text(
-                text = "Mi perfil",
-                color = purple,
-                fontWeight = FontWeight.Bold,
-                fontSize = 14.sp
-            )
-        }
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable
 fun SearchBarWithIcons(
     onSearchClick: () -> Unit,
-    onCameraClick: () -> Unit,
+    onCameraClick: () -> Unit,  // No necesitamos NavController aquí, solo la función
     onMicClick: () -> Unit
 ) {
     var query by remember { mutableStateOf("") }
@@ -213,7 +167,7 @@ fun SearchBarWithIcons(
                     tint = purple,
                     modifier = Modifier
                         .padding(end = 8.dp)
-                        .clickable { onCameraClick() }
+                        .clickable { onCameraClick() }  // Navegar al escáner al hacer clic
                 )
                 Icon(
                     imageVector = Icons.Filled.Mic,
@@ -236,29 +190,4 @@ fun SearchBarWithIcons(
         ),
         singleLine = true
     )
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = "Hello $name!",
-            color = Color.Yellow,
-            fontSize = 96.sp,
-            modifier = Modifier
-                .background(Color.Black.copy(alpha = 0.5f))
-                .padding(16.dp)
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    SmartFitv2Theme {
-        Greeting("Android")
-    }
 }
