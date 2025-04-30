@@ -1,28 +1,42 @@
 package com.rodriguez.smartfitv2.data.dao
 
-import android.content.Context //Import de Room necesario para crear la base de datos.
+import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.rodriguez.smartfitv2.data.model.User //Entidad que se guarda en la base de datos.
+import androidx.room.TypeConverters
+import com.rodriguez.smartfitv2.data.model.User
+import com.rodriguez.smartfitv2.data.model.MedidasHombre
+import com.rodriguez.smartfitv2.data.model.MedidasMujer
+import com.rodriguez.smartfitv2.data.model.CompanyEntity
+import com.rodriguez.smartfitv2.data.model.APIIntegrationEntity
+import com.rodriguez.smartfitv2.data.model.CompanyUserInteractionEntity
+import com.rodriguez.smartfitv2.data.Converters
 
-@Database(entities = [User::class], version = 3) // Anotación DataBase de Room donde entities muestra las clases que son tablas y versión de la base de datos que va aumentando conforme haces cambios a la base de datos.
-abstract class AppDatabase : RoomDatabase() { //Clase abstracta que hereda de RoomDataBase, que es la clase base y principal.
+@TypeConverters(Converters::class)
+@Database(entities = [User::class, MedidasHombre::class, MedidasMujer::class,
+        CompanyEntity::class, APIIntegrationEntity::class, CompanyUserInteractionEntity::class], version = 8)
+abstract class AppDatabase : RoomDatabase() {
 
-    abstract fun userDao(): UserDao //Método abstracto del DAO
+    abstract fun userDao(): UserDao // Métodos DAO para User
+    abstract fun medidasHombreDao(): MedidasHombreDao // Métodos DAO para MedidasHombre
+    abstract fun medidasMujerDao(): MedidasMujerDao // Métodos DAO para MedidasMujer
+    abstract fun companyDao(): CompanyDao // Métodos DAO para Company
+    abstract fun apiIntegrationDao(): APIIntegrationDao // Métodos DAO para apiIntegration
+    abstract fun companyUserInteractionDao(): CompanyUserInteractionDao // Métodos DAO para CompanyUserInteraction
+    companion object {
+        @Volatile private var INSTANCE: AppDatabase? = null
 
-    companion object { //Bloque estático que permite tener una única instancia compartida de la base de datos (patrón Singleton).
-        @Volatile private var INSTANCE: AppDatabase? = null //Variable que guarda la instancia de la base de datos. //@Volatile: garantiza que los cambios a esta variable se reflejen correctamente en todos los hilos.
-        fun getDatabase(context: Context): AppDatabase { //Método para obtener una instancia de la base de datos.
+        fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
-                val instance = Room.databaseBuilder( //Construye la base de datos usando Room.
-                    context.applicationContext, //Evita fugas de memoria.
-                    AppDatabase::class.java, //Clase de la base de datos.
-                    "smartfit_database" //Nombre del archivo de la base de datos.
+                val instance = Room.databaseBuilder(
+                    context.applicationContext,
+                    AppDatabase::class.java,
+                    "smartfit_database"
                 )
-                    .fallbackToDestructiveMigration()  // Esto elimina y recrea la base de datos en caso de cambiar el esquema
-                    .build() //Finaliza la construcción de la instancia.
-                INSTANCE = instance //Guarda la instancia y la devuelve.
+                    .fallbackToDestructiveMigration()
+                    .build()
+                INSTANCE = instance
                 instance
             }
         }
