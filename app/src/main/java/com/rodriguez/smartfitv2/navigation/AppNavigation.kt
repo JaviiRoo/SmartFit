@@ -5,13 +5,9 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-<<<<<<< HEAD
 import com.rodriguez.smartfitv2.ui.home.HomeScreen // Importa HomeScreenContent
-=======
 import com.rodriguez.smartfitv2.ui.catalog.CatalogScreen
 import com.rodriguez.smartfitv2.ui.favorites.FavoritesScreen
-import com.rodriguez.smartfitv2.ui.home.HomeScreen
->>>>>>> b2770a7067bb9e9421ba38d97edf24a1d44beb14
 import com.rodriguez.smartfitv2.ui.login.LoginScreen
 import com.rodriguez.smartfitv2.ui.measurement.MeasurementHistoryScreen
 import com.rodriguez.smartfitv2.ui.profile.ProfileScreen

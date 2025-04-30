@@ -9,7 +9,7 @@ import androidx.room.ColumnInfo
     tableName = "API_Integration",
     foreignKeys = [ForeignKey(
         entity = CompanyEntity::class,
-        parentColumns = ["ID_Company"],
+        parentColumns = ["Id_Company"], // ✅ CORRECTO
         childColumns = ["ID_Company"],
         onDelete = ForeignKey.CASCADE
     )]
