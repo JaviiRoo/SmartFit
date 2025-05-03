@@ -1,33 +1,27 @@
-package com.rodriguez.smartfitv2.data.dao
+package com.rodriguez.smartfitv2.data
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.rodriguez.smartfitv2.data.Converters
-import com.rodriguez.smartfitv2.data.model.*
+import com.rodriguez.smartfitv2.data.dao.ProfileDao
+import com.rodriguez.smartfitv2.data.dao.UserDao
+import com.rodriguez.smartfitv2.data.model.Profile
+import com.rodriguez.smartfitv2.data.model.User
 
-@TypeConverters(Converters::class)
+@TypeConverters(GenderConverter::class) // Aquí agregas GenderConverter
 @Database(
     entities = [
-        User::class,
-        MedidasHombre::class,
-        MedidasMujer::class,
-        CompanyEntity::class,
-        APIIntegrationEntity::class,
-        CompanyUserInteractionEntity::class
+        Profile::class,
+        User::class
     ],
-    version = 8
+    version = 1,
+    exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
-
+    abstract fun profileDao(): ProfileDao
     abstract fun userDao(): UserDao
-    abstract fun medidasHombreDao(): MedidasHombreDao
-    abstract fun medidasMujerDao(): MedidasMujerDao
-    abstract fun companyDao(): CompanyDao
-    abstract fun apiIntegrationDao(): APIIntegrationDao
-    abstract fun companyUserInteractionDao(): CompanyUserInteractionDao
 
     companion object {
         @Volatile

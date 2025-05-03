@@ -4,7 +4,7 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.rodriguez.smartfitv2.data.dao.AppDatabase
+import com.rodriguez.smartfitv2.data.AppDatabase
 import com.rodriguez.smartfitv2.data.model.User
 import com.rodriguez.smartfitv2.data.repository.UserRepository
 import kotlinx.coroutines.launch

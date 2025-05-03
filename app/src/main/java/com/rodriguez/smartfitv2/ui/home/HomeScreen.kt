@@ -32,7 +32,7 @@ fun HomeScreen(navController: NavController, userName: String = "Usuario", userP
         Box(modifier = Modifier.fillMaxSize()) {
             // Imagen de fondo
             Image(
-                painter = painterResource(id = R.drawable.fondohome),
+                painter = painterResource(id = R.drawable.fondoprobador2),
                 contentDescription = "Fondo",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()

@@ -3,8 +3,9 @@ package com.rodriguez.smartfitv2.viewmodel;
 import android.app.Application //Accede al contexto desde el ViewModel.
 import androidx.lifecycle.AndroidViewModel //Variante de ViewModel que permite acceder al contexto (ideal para bases de datos locales).
 import androidx.lifecycle.viewModelScope //un CoroutineScope ligado al ciclo de vida del ViewModel.
-import com.rodriguez.smartfitv2.data.dao.AppDatabase //Accede a la base de datos y a la lógica de usuario.
+import com.rodriguez.smartfitv2.data.AppDatabase //Accede a la base de datos y a la lógica de usuario.
 import com.rodriguez.smartfitv2.data.repository.UserRepository
+import com.rodriguez.smartfitv2.data.dao.UserDao
 import kotlinx.coroutines.launch //Permite correr código asincrónico de forma segura en el viewModelScope.
 
 class LoginViewModel(application: Application) : AndroidViewModel(application) { //Define el ViewModel para la pantalla de login. Extiende de AndroidViewModel en vez de ViewModel, para poder acceder al Application (y por ende al contexto necesario para Room).

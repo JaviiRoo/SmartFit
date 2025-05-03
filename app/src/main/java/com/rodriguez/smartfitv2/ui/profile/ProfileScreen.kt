@@ -56,6 +56,15 @@ fun ProfileScreen(navController: NavController, userName: String = "Usuario", em
             }) {
                 Text("Editar perfil (próximamente)")
             }
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(onClick = {
+                navController.navigate("home") {
+                    popUpTo("profile") { inclusive = true }
+                }
+            }) {
+                Text("Ir al Inicio")
+            }
         }
     }
 }

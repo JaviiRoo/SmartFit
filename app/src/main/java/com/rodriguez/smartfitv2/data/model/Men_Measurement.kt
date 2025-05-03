@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.ForeignKey
 import androidx.room.ColumnInfo
+import androidx.room.Index
 
 @Entity(
     tableName = "Man_Measurements",
@@ -12,7 +13,8 @@ import androidx.room.ColumnInfo
         parentColumns = ["id"],
         childColumns = ["ID_User"],
         onDelete = ForeignKey.CASCADE
-    )]
+    )],
+    indices = [Index(value = ["ID_User"])]  // Aquí agregamos el índice
 )
 data class MedidasHombre(
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "ID_Measures") val idMeasures: Int = 0,

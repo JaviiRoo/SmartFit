@@ -104,8 +104,10 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
                         email,
                         password,
                         onSuccess = {
-                            errorMessage = null // Borra el mensaje de error si el login fue exitoso
-                            navController.navigate("home") // Navega a Home
+                            errorMessage = null
+                            navController.navigate("profileSelector") {
+                                popUpTo("login") { inclusive = true }
+                            }
                         },
                         onError = { error ->
                             errorMessage = error // Muestra el mensaje de error

@@ -57,6 +57,7 @@ dependencies {
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.ui)
     implementation(libs.material3)
+    implementation("io.coil-kt:coil-compose:2.4.0")
     implementation(libs.androidx.navigation.compose)
     implementation("androidx.compose.animation:animation:1.7.8")
     implementation ("androidx.compose.material:material-icons-extended")
