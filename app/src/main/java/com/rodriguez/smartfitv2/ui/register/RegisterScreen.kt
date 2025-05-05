@@ -1,10 +1,14 @@
 package com.rodriguez.smartfitv2.ui.register
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -12,9 +16,16 @@ import com.rodriguez.smartfitv2.viewmodel.RegisterViewModel
 
 @Composable
 fun RegisterScreen(navController: NavController, registerViewModel: RegisterViewModel = viewModel()) {
-    var name by remember { mutableStateOf("") }  // Campo para el nombre
+    var name by remember { mutableStateOf("") }
+    var surname by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var birthday by remember { mutableStateOf("") }
+    var gender by remember { mutableStateOf("") }
+    var country by remember { mutableStateOf("") }
+    var city by remember { mutableStateOf("") }
+    var telephone by remember { mutableStateOf("") }
+
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     Surface(
@@ -23,81 +34,71 @@ fun RegisterScreen(navController: NavController, registerViewModel: RegisterView
     ) {
         Column(
             modifier = Modifier
-                .padding(horizontal = 32.dp)
+                .padding(24.dp)
                 .fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Crear Cuenta", style = MaterialTheme.typography.headlineLarge)
-            Spacer(modifier = Modifier.height(24.dp))
+            Text("Crear Cuenta", style = MaterialTheme.typography.headlineLarge, color = Color.Magenta)
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // Campo para el nombre
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text("Nombre completo") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
+            @Composable
+            fun outlinedField(value: String, onChange: (String) -> Unit, label: String, keyboardType: KeyboardType = KeyboardType.Text) {
+                OutlinedTextField(
+                    value = value,
+                    onValueChange = onChange,
+                    label = { Text(label) },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            outlinedField(name, { name = it }, "Nombre")
+            outlinedField(surname, { surname = it }, "Apellido")
+            outlinedField(email, { email = it }, "Correo electrónico", KeyboardType.Email)
+            outlinedField(password, { password = it }, "Contraseña", KeyboardType.Password)
+            outlinedField(birthday, { birthday = it }, "Fecha de nacimiento (dd/mm/yyyy)")
+            outlinedField(gender, { gender = it }, "Género")
+            outlinedField(country, { country = it }, "País")
+            outlinedField(city, { city = it }, "Ciudad")
+            outlinedField(telephone, { telephone = it }, "Teléfono", KeyboardType.Number)
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                label = { Text("Correo electrónico") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Contraseña") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Botón Aceptar (para registrarse)
             Button(
                 onClick = {
-                    // Ahora pasamos 'name', 'email' y 'password'
                     registerViewModel.registerUser(
-                        name,
-                        email,
-                        password,
-                        onSuccess = {
-                            navController.navigate("login") // Navegar a login después de registrar
-                        },
-                        onError = { error ->
-                            errorMessage = error
-                        }
+                        name.trim(),
+                        surname.trim(),
+                        email.trim(),
+                        password.trim(),
+                        birthday.trim(),
+                        gender.trim(),
+                        country.trim(),
+                        city.trim(),
+                        telephone.trim(),
+                        onSuccess = { navController.navigate("login") },
+                        onError = { errorMessage = it }
                     )
                 },
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Magenta)
             ) {
                 Text("Aceptar")
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-            // Botón Cancelar (para cancelar el registro y volver)
             OutlinedButton(
-                onClick = {
-                    navController.popBackStack() // Navegar hacia atrás (cancelar registro)
-                },
+                onClick = { navController.popBackStack() },
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.outlinedButtonColors(containerColor = MaterialTheme.colorScheme.error)
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Magenta)
             ) {
                 Text("Cancelar")
             }
 
-            // Mostrar error si existe
             errorMessage?.let {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(text = it, color = MaterialTheme.colorScheme.error)
@@ -105,3 +106,4 @@ fun RegisterScreen(navController: NavController, registerViewModel: RegisterView
         }
     }
 }
+

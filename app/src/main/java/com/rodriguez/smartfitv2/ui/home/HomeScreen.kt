@@ -51,12 +51,11 @@ fun HomeScreen(navController: NavController, userName: String = "Usuario", userP
                 )
             }
 
-
             // Cinta métrica + texto
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .align(Alignment.TopCenter)
+                    .align(Alignment.TopCenter)  // Alineación de la cinta métrica
                     .padding(top = 200.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -74,22 +73,15 @@ fun HomeScreen(navController: NavController, userName: String = "Usuario", userP
                 )
             }
 
-            Button(
-                onClick = { navController.navigate("favorites") },
-                modifier = Modifier.padding(top = 16.dp)
-            ) {
-                Text("Ver favoritos")
-            }
-
-
-            // Barra de búsqueda
+            // Disposición de los botones y barra de búsqueda
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .align(Alignment.BottomCenter)
+                    .align(Alignment.BottomCenter)  // Alineación de la columna
                     .padding(bottom = 64.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                // Barra de búsqueda
                 SearchBarWithIcons(
                     onSearchClick = {
                         navController.navigate("catalog")
@@ -100,8 +92,20 @@ fun HomeScreen(navController: NavController, userName: String = "Usuario", userP
                     onMicClick = { Log.d("SFIT", "Micrófono pulsado") }
                 )
 
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(32.dp))  // Espacio entre los elementos
 
+                // Botón de "Ver favoritos"
+                Button(
+                    onClick = { navController.navigate("favorites") },
+                    modifier = Modifier
+                        .fillMaxWidth(0.85f)
+                        .padding(top = 8.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                ) {
+                    Text("Ver favoritos", color = Color.White)
+                }
+
+                // Botón de "Historial de Medidas"
                 Button(
                     onClick = { navController.navigate("measurement_history") },
                     modifier = Modifier
@@ -112,15 +116,16 @@ fun HomeScreen(navController: NavController, userName: String = "Usuario", userP
                     Text("Historial de Medidas", color = Color.White)
                 }
 
-
-                // Botón cerrar sesión
+                // Botón de "Cerrar sesión"
                 Button(
                     onClick = {
                         navController.navigate("login") {
                             popUpTo("home") { inclusive = true }
                         }
                     },
-                    modifier = Modifier.fillMaxWidth(0.85f),
+                    modifier = Modifier
+                        .fillMaxWidth(0.85f)
+                        .padding(top = 8.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                 ) {
                     Text("Cerrar sesión", color = Color.White)
