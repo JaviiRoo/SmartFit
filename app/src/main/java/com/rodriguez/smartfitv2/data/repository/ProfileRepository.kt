@@ -19,18 +19,12 @@ class ProfileRepository(private val profileDao: ProfileDao) {
     // Insertar un nuevo perfil
     suspend fun insertProfile(profile: Profile) {
         try {
-            // Verificar si ya existe un perfil con el mismo tipo de género
-            val existingProfiles = profileDao.getProfileByType(profile.gender.name)
-            if (existingProfiles.isEmpty()) {
-                profileDao.insertProfile(profile)
-            } else {
-                // Aquí podrías manejar el caso si ya existe un perfil (por ejemplo, actualizarlo)
-                // o devolver un mensaje indicando que el perfil ya existe.
-            }
+            profileDao.insertProfile(profile)
         } catch (e: Exception) {
-            // Manejo de error
+            // Manejo de error si deseas registrar el error o informarlo
         }
     }
+
 
     // Actualizar un perfil existente
     suspend fun updateProfile(profile: Profile) {

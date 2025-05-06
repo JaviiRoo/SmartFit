@@ -94,7 +94,11 @@ fun CreateProfileScreen(
                 // Guardar en la base de datos usando corrutina
                 CoroutineScope(Dispatchers.IO).launch {
                     profileRepository.insertProfile(newProfile)
-                    navController.navigate("profileSelector")
+
+                    // Cambio al hilo principal para navegar sin error
+                    kotlinx.coroutines.withContext(Dispatchers.Main) {
+                        navController.navigate("profileSelector")
+                    }
                 }
             },
             enabled = name.isNotBlank()
