@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import com.rodriguez.smartfitv2.data.model.Profile
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ProfileDao {
@@ -29,4 +30,8 @@ interface ProfileDao {
     // Buscar un perfil por tipo (HOMBRE, MUJER, NIÑO, NIÑA)
     @Query("SELECT * FROM profile WHERE gender = :profileType")
     suspend fun getProfileByType(profileType: String): List<Profile>
+
+    // Nuevo método para observar la lista de perfiles en tiempo real
+    @Query("SELECT * FROM profile")
+    fun getAllProfilesFlow(): Flow<List<Profile>>
 }

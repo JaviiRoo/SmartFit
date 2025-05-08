@@ -5,6 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import com.rodriguez.smartfitv2.ui.catalog.CatalogScreen
 import com.rodriguez.smartfitv2.ui.favorites.FavoritesScreen
 import com.rodriguez.smartfitv2.ui.home.HomeScreen
@@ -36,9 +38,18 @@ fun AppNavigation(navController: NavHostController, profileRepository: ProfileRe
             ProfileSelectorScreen(navController, profileRepository)
         }
 
-        // Ruta para crear un perfil
+        // Ruta para crear un perfil nuevo
         composable("createProfile") {
             CreateProfileScreen(navController, profileRepository)
+        }
+
+        // Ruta para editar un perfil existente (¡NUEVO BLOQUE!)
+        composable(
+            "createProfile/{profileId}",
+            arguments = listOf(navArgument("profileId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val profileId = backStackEntry.arguments?.getInt("profileId")
+            CreateProfileScreen(navController, profileRepository, profileId)
         }
     }
 }

@@ -21,15 +21,19 @@ import com.rodriguez.smartfitv2.data.repository.ProfileRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun CreateProfileScreen(
     navController: NavController,
-    profileRepository: ProfileRepository
+    profileRepository: ProfileRepository,
+    profileId: Int? = null
 ) {
     var name by remember { mutableStateOf("") }
     var gender by remember { mutableStateOf(Gender.HOMBRE) }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
+    var isLoaded by remember { mutableStateOf(false) }
+    var isEditMode = profileId != null
 
     val context = LocalContext.current
 
@@ -39,6 +43,19 @@ fun CreateProfileScreen(
         imageUri = uri
     }
 
+    // Cargar datos si estamos en modo edición
+    LaunchedEffect(profileId) {
+        if (isEditMode && !isLoaded) {
+            val profile = profileRepository.getAllProfiles().find { it.id == profileId }
+            profile?.let {
+                name = it.name
+                gender = it.gender
+                imageUri = it.image?.let { uriString -> Uri.parse(uriString) }
+            }
+            isLoaded = true
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -46,7 +63,10 @@ fun CreateProfileScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Crear Perfil", style = MaterialTheme.typography.headlineSmall)
+        Text(
+            if (isEditMode) "Editar Perfil" else "Crear Perfil",
+            style = MaterialTheme.typography.headlineSmall
+        )
 
         OutlinedTextField(
             value = name,
@@ -85,25 +105,34 @@ fun CreateProfileScreen(
 
         Button(
             onClick = {
-                val newProfile = Profile(
-                    name = name,
-                    gender = gender,
-                    image = imageUri?.toString()
-                )
-
-                // Guardar en la base de datos usando corrutina
                 CoroutineScope(Dispatchers.IO).launch {
-                    profileRepository.insertProfile(newProfile)
+                    if (isEditMode) {
+                        // Actualizar perfil existente
+                        val updatedProfile = Profile(
+                            id = profileId!!,
+                            name = name,
+                            gender = gender,
+                            image = imageUri?.toString()
+                        )
+                        profileRepository.updateProfile(updatedProfile)
+                    } else {
+                        // Crear nuevo perfil
+                        val newProfile = Profile(
+                            name = name,
+                            gender = gender,
+                            image = imageUri?.toString()
+                        )
+                        profileRepository.insertProfile(newProfile)
+                    }
 
-                    // Cambio al hilo principal para navegar sin error
-                    kotlinx.coroutines.withContext(Dispatchers.Main) {
+                    withContext(Dispatchers.Main) {
                         navController.navigate("profileSelector")
                     }
                 }
             },
             enabled = name.isNotBlank()
         ) {
-            Text("Guardar perfil")
+            Text(if (isEditMode) "Actualizar perfil" else "Guardar perfil")
         }
     }
 }

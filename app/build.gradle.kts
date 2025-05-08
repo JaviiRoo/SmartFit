@@ -41,6 +41,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.2")
     implementation("androidx.compose.material:material-icons-extended:1.6.4")
     implementation("androidx.compose.material:material-icons-extended:1.6.4")
     implementation(platform("androidx.compose:compose-bom:2024.02.02"))
