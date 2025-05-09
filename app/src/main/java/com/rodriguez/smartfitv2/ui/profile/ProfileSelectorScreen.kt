@@ -4,6 +4,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -17,13 +20,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.rodriguez.smartfitv2.data.model.Profile
 import com.rodriguez.smartfitv2.data.repository.ProfileRepository
 import kotlinx.coroutines.launch
 
 @Composable
-fun ProfileSelectorScreen(navController: NavController, profileRepository: ProfileRepository) {
+fun ProfileSelectorScreen(navController: NavHostController, profileRepository: ProfileRepository) {
     val profiles: List<Profile> by profileRepository.getAllProfilesFlow().collectAsStateWithLifecycle(initialValue = emptyList())
     var showDeleteDialog by remember { mutableStateOf(false) }
     var profileToDelete by remember { mutableStateOf<Profile?>(null) }
@@ -32,7 +36,7 @@ fun ProfileSelectorScreen(navController: NavController, profileRepository: Profi
     if (profiles.isEmpty()) {
         EmptyProfileView(navController)
     } else {
-        ProfileListView(
+        ProfileGridView(
             navController = navController,
             profiles = profiles,
             onDeleteRequest = { profile ->
@@ -69,7 +73,7 @@ fun ProfileSelectorScreen(navController: NavController, profileRepository: Profi
 }
 
 @Composable
-private fun ProfileListView(
+private fun ProfileGridView(
     navController: NavController,
     profiles: List<Profile>,
     onDeleteRequest: (Profile) -> Unit
@@ -78,26 +82,30 @@ private fun ProfileListView(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(56.dp)) // Más espacio arriba
+        Spacer(modifier = Modifier.height(56.dp))
         Text("Selecciona un perfil", style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Estilo Netflix: Perfiles en columna, cada uno con imagen circular y acciones
-        profiles.forEach { profile ->
-            ProfileNetflixItem(
-                profile = profile,
-                onEdit = { navController.navigate("createProfile/${profile.id}") },
-                onDelete = { onDeleteRequest(profile) },
-                onClick = {
-                    navController.navigate("home") {
-                        popUpTo("profileSelector") { inclusive = true }
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        ) {
+            items(profiles) { profile ->
+                ProfileGridItem(
+                    profile = profile,
+                    onEdit = { navController.navigate("createProfile/${profile.id}") },
+                    onDelete = { onDeleteRequest(profile) },
+                    onClick = {
+                        navController.navigate("home") {
+                            popUpTo("profileSelector") { inclusive = true }
+                        }
                     }
-                }
-            )
-            Spacer(modifier = Modifier.height(20.dp))
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -106,71 +114,77 @@ private fun ProfileListView(
 }
 
 @Composable
-private fun ProfileNetflixItem(
+private fun ProfileGridItem(
     profile: Profile,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
     onClick: () -> Unit
 ) {
-    Row(
+    Box(
         modifier = Modifier
+            .padding(12.dp)
             .fillMaxWidth()
+            .aspectRatio(0.9f)
             .clickable { onClick() }
-            .padding(horizontal = 24.dp),
-        verticalAlignment = Alignment.CenterVertically
     ) {
-        // Imagen circular y nombre debajo (columna)
+        // Imagen circular y nombre debajo
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.width(90.dp)
+            modifier = Modifier.align(Alignment.TopCenter)
         ) {
-            if (!profile.image.isNullOrBlank()) {
-                Image(
-                    painter = rememberAsyncImagePainter(profile.image),
-                    contentDescription = "Avatar",
-                    modifier = Modifier
-                        .size(64.dp)
-                        .clip(CircleShape)
-                        .background(Color.LightGray, CircleShape)
-                )
-            } else {
-                // Avatar por defecto
-                Box(
-                    modifier = Modifier
-                        .size(64.dp)
-                        .clip(CircleShape)
-                        .background(Color.Gray)
-                )
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Imagen circular
+                if (!profile.image.isNullOrBlank()) {
+                    Image(
+                        painter = rememberAsyncImagePainter(profile.image),
+                        contentDescription = "Avatar",
+                        modifier = Modifier
+                            .size(64.dp)
+                            .clip(CircleShape)
+                            .background(Color.LightGray, CircleShape)
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .size(64.dp)
+                            .clip(CircleShape)
+                            .background(Color.Gray)
+                    )
+                }
+                // Acciones pegadas a la derecha de la imagen
+                Column(
+                    modifier = Modifier.padding(start = 4.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    IconButton(
+                        onClick = { onEdit() },
+                        modifier = Modifier.size(28.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Edit,
+                            contentDescription = "Editar perfil"
+                        )
+                    }
+                    IconButton(
+                        onClick = { onDelete() },
+                        modifier = Modifier.size(28.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Delete,
+                            contentDescription = "Eliminar perfil",
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
             }
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = profile.name,
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
-        }
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        // Acciones (lápiz arriba, papelera abajo)
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            IconButton(onClick = onEdit) {
-                Icon(
-                    imageVector = Icons.Filled.Edit,
-                    contentDescription = "Editar perfil"
-                )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            IconButton(onClick = onDelete) {
-                Icon(
-                    imageVector = Icons.Filled.Delete,
-                    contentDescription = "Eliminar perfil",
-                    tint = MaterialTheme.colorScheme.error
-                )
-            }
         }
     }
 }
