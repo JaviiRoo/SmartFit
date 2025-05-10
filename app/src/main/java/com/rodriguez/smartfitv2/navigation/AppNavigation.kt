@@ -43,7 +43,7 @@ fun AppNavigation(navController: NavHostController, profileRepository: ProfileRe
             CreateProfileScreen(navController, profileRepository)
         }
 
-        // Ruta para editar un perfil existente (¡NUEVO BLOQUE!)
+        // Ruta para editar un perfil existente
         composable(
             "createProfile/{profileId}",
             arguments = listOf(navArgument("profileId") { type = NavType.IntType })

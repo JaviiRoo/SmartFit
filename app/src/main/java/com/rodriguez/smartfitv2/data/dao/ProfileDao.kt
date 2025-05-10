@@ -31,7 +31,7 @@ interface ProfileDao {
     @Query("SELECT * FROM profile WHERE gender = :profileType")
     suspend fun getProfileByType(profileType: String): List<Profile>
 
-    // Nuevo método para observar la lista de perfiles en tiempo real
+    // Lista de perfiles en tiempo real
     @Query("SELECT * FROM profile")
     fun getAllProfilesFlow(): Flow<List<Profile>>
 }
