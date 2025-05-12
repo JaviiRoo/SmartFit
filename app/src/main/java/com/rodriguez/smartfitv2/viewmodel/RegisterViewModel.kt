@@ -6,87 +6,114 @@ import androidx.lifecycle.viewModelScope
 import com.rodriguez.smartfitv2.data.AppDatabase
 import com.rodriguez.smartfitv2.data.model.User
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class RegisterViewModel(application: Application) : AndroidViewModel(application) {
     private val userDao = AppDatabase.getDatabase(application).userDao()
 
-    private fun formatDate(timestamp: Long): String {
-        val sdf = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault())
-        return sdf.format(java.util.Date(timestamp))
+    private fun formatearFecha(timestamp: Long): String {
+        val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        return sdf.format(Date(timestamp))
     }
 
-    private fun isValidEmail(email: String): Boolean {
-        return email.contains("@") && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+    private fun esEmailValido(email: String): Boolean {
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 
-    private fun isValidPassword(password: String): Boolean {
+    private fun esContraseñaValida(contraseña: String): Boolean {
         val regex = Regex("^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@\$!%*#?&])[A-Za-z\\d@\$!%*#?&]{8,}$")
-        return regex.matches(password)
+        return regex.matches(contraseña)
     }
 
-    private fun isNumeric(input: String): Boolean {
-        return input.all { it.isDigit() }
+    private fun esNumerico(input: String): Boolean {
+        return input.matches(Regex("\\d+"))
     }
 
-    fun registerUser(
-        name: String,
-        surname: String,
+    private fun esFechaValida(fecha: String): Boolean {
+        return try {
+            val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            sdf.isLenient = false
+            sdf.parse(fecha)
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    fun registrarUsuario(
+        nombre: String,
+        apellido: String,
         email: String,
-        password: String,
-        birthday: String,
-        gender: String,
-        country: String,
-        city: String,
-        telephone: String,
+        contraseña: String,
+        fechaNacimiento: String,
+        telefono: String,
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
         viewModelScope.launch {
             try {
-                if (name.isBlank() || surname.isBlank() || email.isBlank() || password.isBlank() || telephone.isBlank()) {
-                    onError("Todos los campos obligatorios deben estar completos.")
+                if (nombre.isBlank() || apellido.isBlank() || email.isBlank() ||
+                    contraseña.isBlank() || fechaNacimiento.isBlank() || telefono.isBlank()) {
+                    onError("Todos los campos son obligatorios")
                     return@launch
                 }
 
-                if (!isValidEmail(email)) {
-                    onError("El correo electrónico no es válido.")
+                if (nombre.length < 2 || apellido.length < 2) {
+                    onError("Nombre y apellido deben tener al menos 2 caracteres")
                     return@launch
                 }
 
-                if (!isValidPassword(password)) {
-                    onError("La contraseña debe tener mínimo 8 caracteres, incluir letras, números y símbolos.")
+                if (!esEmailValido(email)) {
+                    onError("Por favor ingresa un correo electrónico válido")
                     return@launch
                 }
 
-                if (!isNumeric(telephone)) {
-                    onError("El teléfono debe contener solo números.")
+                if (!esContraseñaValida(contraseña)) {
+                    onError("La contraseña debe tener mínimo 8 caracteres, incluyendo letras, números y al menos un símbolo (@\$!%*#?&)")
                     return@launch
                 }
 
-                val existingUser = userDao.getUserByEmail(email)
-                if (existingUser != null) {
-                    onError("Ya existe un usuario con este correo electrónico.")
+                if (!esFechaValida(fechaNacimiento)) {
+                    onError("Fecha de nacimiento no válida. Usa el formato dd/mm/aaaa")
                     return@launch
                 }
 
-                val user = User(
-                    name = name,
-                    surname = surname,
+                if (!esNumerico(telefono)) {
+                    onError("El teléfono debe contener solo números")
+                    return@launch
+                }
+
+                if (telefono.length < 9) {
+                    onError("El teléfono debe tener al menos 9 dígitos")
+                    return@launch
+                }
+
+                val usuarioExistente = userDao.getUserByEmail(email)
+                if (usuarioExistente != null) {
+                    onError("Ya existe una cuenta con este correo electrónico")
+                    return@launch
+                }
+
+                val usuario = User(
+                    name = nombre,
+                    surname = apellido,
                     email = email,
-                    password = password,
-                    birthday = birthday,
-                    gender = gender,
-                    country = country,
-                    city = city,
-                    telephone = telephone.toIntOrNull() ?: 0,
-                    registration_date = formatDate(System.currentTimeMillis()),
+                    password = contraseña,
+                    birthday = fechaNacimiento,
+                    gender = "",
+                    country = "",
+                    city = "",
+                    telephone = telefono.toIntOrNull() ?: 0,
+                    registration_date = formatearFecha(System.currentTimeMillis()),
                     last_connection = System.currentTimeMillis()
                 )
 
-                userDao.insertUser(user)
+                userDao.insertUser(usuario)
                 onSuccess()
             } catch (e: Exception) {
-                onError("Error al registrar el usuario: ${e.message}")
+                onError("Error al registrar: ${e.localizedMessage ?: "Inténtalo de nuevo más tarde"}")
             }
         }
     }

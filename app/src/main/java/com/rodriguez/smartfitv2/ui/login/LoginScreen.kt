@@ -1,25 +1,34 @@
 package com.rodriguez.smartfitv2.ui.login
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.rodriguez.smartfitv2.R
+import com.rodriguez.smartfitv2.ui.theme.SmartFitPink
 import com.rodriguez.smartfitv2.viewmodel.LoginViewModel
+import com.rodriguez.smartfitv2.ui.theme.montserratFontFamily
 
 @Composable
 fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = viewModel()) {
@@ -31,23 +40,31 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
 
     val isFormValid = email.isNotBlank() && password.isNotBlank()
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
-    ) {
+    Box(modifier = Modifier.fillMaxSize()) {
+
+        // Fondo
+        Image(
+            painter = painterResource(id = R.drawable.login_background),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
+
         Column(
             modifier = Modifier
-                .padding(horizontal = 32.dp)
-                .fillMaxSize(),
+                .fillMaxSize()
+                .padding(horizontal = 32.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-            // Magenta title
             Text(
-                "¡Bienvenido a SmartFit!",
-                style = MaterialTheme.typography.headlineLarge,
-                color = Color.Magenta
+                text = "¡Bienvenido a SmartFit!",
+                style = TextStyle(
+                    fontFamily = montserratFontFamily,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 28.sp
+                ),
+                color = Color.Black
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -80,7 +97,7 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
                     val icon = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility
                     val description = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña"
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(imageVector = icon, contentDescription = description, tint = Color.Magenta)
+                        Icon(imageVector = icon, contentDescription = description, tint = Color.Black)
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -105,7 +122,7 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
                     )
                 },
                 enabled = isFormValid,
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Magenta),
+                colors = ButtonDefaults.buttonColors(containerColor = SmartFitPink),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
@@ -119,7 +136,7 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
             TextButton(
                 onClick = { navController.navigate("register") }
             ) {
-                Text("¿No tienes cuenta? Regístrate", color = Color.Magenta)
+                Text("¿No tienes cuenta? Regístrate", color = Color.Black)
             }
 
             AnimatedVisibility(visible = errorMessage != null) {
