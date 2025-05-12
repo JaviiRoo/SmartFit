@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <style name="Theme.SmartFitv2" parent="Theme.AppCompat.Light.NoActionBar" />
+    <style name="Theme.SmartFitv2" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Otros atributos... -->
+        <item name="android:windowBackground">@android:color/black</item>
+        <item name="android:windowDisablePreview">true</item>
+    </style>
 </resources>
