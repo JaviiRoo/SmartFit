@@ -1,3 +1,4 @@
+// MainActivity.kt (sin cambios en la lógica de login)
 package com.rodriguez.smartfitv2
 
 import android.os.Bundle
@@ -5,7 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.MaterialTheme
 import androidx.navigation.compose.rememberNavController
-import com.rodriguez.smartfitv2.data.AppDatabase
+import com.rodriguez.smartfitv2.data.database.AppDatabase
 import com.rodriguez.smartfitv2.data.repository.ProfileRepository
 import com.rodriguez.smartfitv2.navigation.AppNavigation
 
@@ -20,9 +21,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
             MaterialTheme {
-                AppNavigation(navController = navController, profileRepository = profileRepository)
+                AppNavigation(
+                    navController = navController,
+                    profileRepository = profileRepository
+                )
             }
         }
     }
 }
-

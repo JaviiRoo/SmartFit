@@ -3,7 +3,7 @@ package com.rodriguez.smartfitv2.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.rodriguez.smartfitv2.data.AppDatabase
+import com.rodriguez.smartfitv2.data.database.AppDatabase
 import com.rodriguez.smartfitv2.data.model.User
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat

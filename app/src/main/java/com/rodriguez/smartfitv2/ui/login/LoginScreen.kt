@@ -26,13 +26,13 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.rodriguez.smartfitv2.R
+import com.rodriguez.smartfitv2.navigation.Routes
 import com.rodriguez.smartfitv2.ui.theme.SmartFitPink
-import com.rodriguez.smartfitv2.viewmodel.LoginViewModel
 import com.rodriguez.smartfitv2.ui.theme.montserratFontFamily
+import com.rodriguez.smartfitv2.viewmodel.LoginViewModel
 
 @Composable
 fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = viewModel()) {
-
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
@@ -41,8 +41,6 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
     val isFormValid = email.isNotBlank() && password.isNotBlank()
 
     Box(modifier = Modifier.fillMaxSize()) {
-
-        // Fondo
         Image(
             painter = painterResource(id = R.drawable.login_background),
             contentDescription = null,
@@ -112,8 +110,8 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
                         password,
                         onSuccess = {
                             errorMessage = null
-                            navController.navigate("profileSelector") {
-                                popUpTo("login") { inclusive = true }
+                            navController.navigate(Routes.PROFILE_SELECTOR) {
+                                popUpTo(Routes.LOGIN) { inclusive = true }
                             }
                         },
                         onError = { error ->
@@ -134,7 +132,7 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
             Spacer(modifier = Modifier.height(8.dp))
 
             TextButton(
-                onClick = { navController.navigate("register") }
+                onClick = { navController.navigate(Routes.REGISTER) }
             ) {
                 Text("¿No tienes cuenta? Regístrate", color = Color.Black)
             }

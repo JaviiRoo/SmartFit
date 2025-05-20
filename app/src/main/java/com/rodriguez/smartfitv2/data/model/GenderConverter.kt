@@ -1,7 +1,6 @@
-package com.rodriguez.smartfitv2.data
+package com.rodriguez.smartfitv2.data.model
 
 import androidx.room.TypeConverter
-import com.rodriguez.smartfitv2.data.model.Gender
 
 class GenderConverter {
 

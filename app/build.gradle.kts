@@ -43,9 +43,7 @@ android {
 dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.2")
     implementation("androidx.compose.material:material-icons-extended:1.6.4")
-    implementation("androidx.compose.material:material-icons-extended:1.6.4")
     implementation(platform("androidx.compose:compose-bom:2024.02.02"))
-    implementation("androidx.compose.material3:material3")
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -62,6 +60,10 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation("androidx.compose.animation:animation:1.7.8")
     implementation ("androidx.compose.material:material-icons-extended")
+
+    //MATERIAL 3
+    implementation("androidx.compose.material3:material3:1.2.1")
+
 
     // MLKit QR Scanner
     implementation ("com.google.mlkit:barcode-scanning:17.3.0")

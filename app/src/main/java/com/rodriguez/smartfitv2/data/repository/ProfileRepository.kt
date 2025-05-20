@@ -1,59 +1,50 @@
 package com.rodriguez.smartfitv2.data.repository
 
-import kotlinx.coroutines.flow.Flow
 import com.rodriguez.smartfitv2.data.dao.ProfileDao
 import com.rodriguez.smartfitv2.data.model.Profile
-import com.rodriguez.smartfitv2.data.model.Gender
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 
 class ProfileRepository(private val profileDao: ProfileDao) {
+    private val _selectedProfile = MutableStateFlow<Profile?>(null)
 
-    // Obtener todos los perfiles
-    suspend fun getAllProfiles(): List<Profile> {
-        return try {
-            profileDao.getAllProfiles()
-        } catch (e: Exception) {
-            emptyList()
-        }
+    // Flow de todos los perfiles
+    suspend fun getAllProfiles(): List<Profile> = try {
+        profileDao.getAllProfiles()
+    } catch (e: Exception) {
+        emptyList()
     }
 
-    // Insertar un nuevo perfil
-    suspend fun insertProfile(profile: Profile) {
-        try {
-            profileDao.insertProfile(profile)
-        } catch (e: Exception) {
-            // Manejo de error
-        }
+    // Inserción, actualización, eliminación
+    suspend fun insertProfile(profile: Profile) = kotlin.runCatching {
+        profileDao.insertProfile(profile)
+        // opcional: actualizar listado o selected
+    }
+    suspend fun updateProfile(profile: Profile) = kotlin.runCatching {
+        profileDao.updateProfile(profile)
+    }
+    suspend fun deleteProfile(profile: Profile) = kotlin.runCatching {
+        profileDao.deleteProfile(profile)
     }
 
-    // Actualizar un perfil existente
-    suspend fun updateProfile(profile: Profile) {
-        try {
-            profileDao.updateProfile(profile)
-        } catch (e: Exception) {
-            // Manejo de error
-        }
+    // Obtener perfil por ID
+    private suspend fun fetchProfileById(id: Int): Profile? = try {
+        profileDao.getProfileById(id)
+    } catch (e: Exception) {
+        null
     }
 
-    // Eliminar un perfil
-    suspend fun deleteProfile(profile: Profile) {
-        try {
-            profileDao.deleteProfile(profile)
-        } catch (e: Exception) {
-            // Manejo de error
-        }
+    // Flow del perfil seleccionado
+    fun getSelectedProfileFlow(): StateFlow<Profile?> = _selectedProfile
+
+    // Establecer perfil seleccionado
+    suspend fun setSelectedProfile(profileId: Int) {
+        val profile = fetchProfileById(profileId)
+        _selectedProfile.value = profile
     }
 
-    // Buscar un perfil por tipo (HOMBRE, MUJER, NIÑO, NIÑA)
-    suspend fun getProfileByType(profileType: Gender): List<Profile> {
-        return try {
-            profileDao.getProfileByType(profileType.name)
-        } catch (e: Exception) {
-            emptyList()
-        }
-    }
-
-    // Observar todos los perfiles en tiempo real (Flow)
-    fun getAllProfilesFlow(): Flow<List<Profile>> {
-        return profileDao.getAllProfilesFlow()
-    }
+    // Flow de perfiles reactivo
+    fun getAllProfilesFlow(): Flow<List<Profile>> = profileDao.getAllProfilesFlow()
 }

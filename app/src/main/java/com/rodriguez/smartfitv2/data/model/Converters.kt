@@ -1,4 +1,4 @@
-package com.rodriguez.smartfitv2.data
+package com.rodriguez.smartfitv2.data.model
 
 import androidx.room.TypeConverter
 import java.util.Date

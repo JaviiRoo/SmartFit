@@ -1,214 +1,130 @@
+// ProfileSelectorScreen.kt
 package com.rodriguez.smartfitv2.ui.profile
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.rodriguez.smartfitv2.data.model.Profile
 import com.rodriguez.smartfitv2.data.repository.ProfileRepository
+import com.rodriguez.smartfitv2.navigation.Routes
+import com.rodriguez.smartfitv2.viewmodel.ProfileViewModel
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileSelectorScreen(navController: NavHostController, profileRepository: ProfileRepository) {
-    val profiles: List<Profile> by profileRepository.getAllProfilesFlow().collectAsStateWithLifecycle(initialValue = emptyList())
-    var showDeleteDialog by remember { mutableStateOf(false) }
-    var profileToDelete by remember { mutableStateOf<Profile?>(null) }
-    val coroutineScope = rememberCoroutineScope()
-
-    if (profiles.isEmpty()) {
-        EmptyProfileView(navController)
-    } else {
-        ProfileGridView(
-            navController = navController,
-            profiles = profiles,
-            onDeleteRequest = { profile ->
-                profileToDelete = profile
-                showDeleteDialog = true
-            }
-        )
-    }
-
-    if (showDeleteDialog) {
-        AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
-            title = { Text("¿Eliminar perfil?") },
-            text = { Text("Esta acción no se puede deshacer") },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        coroutineScope.launch {
-                            profileToDelete?.let { profile ->
-                                profileRepository.deleteProfile(profile)
-                                showDeleteDialog = false
-                            }
-                        }
-                    }
-                ) { Text("Confirmar") }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = { showDeleteDialog = false }
-                ) { Text("Cancelar") }
-            }
-        )
-    }
-}
-
-@Composable
-private fun ProfileGridView(
-    navController: NavController,
-    profiles: List<Profile>,
-    onDeleteRequest: (Profile) -> Unit
+fun ProfileSelectorScreen(
+    navController: NavHostController,
+    profileRepository: ProfileRepository,
+    profileViewModel: ProfileViewModel
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(modifier = Modifier.height(56.dp))
-        Text("Selecciona un perfil", style = MaterialTheme.typography.headlineSmall)
-        Spacer(modifier = Modifier.height(32.dp))
+    val scope = rememberCoroutineScope()
+    val profiles by profileViewModel.profiles.collectAsState(initial = emptyList())
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-        ) {
-            items(profiles) { profile ->
-                ProfileGridItem(
-                    profile = profile,
-                    onEdit = { navController.navigate("createProfile/${profile.id}") },
-                    onDelete = { onDeleteRequest(profile) },
-                    onClick = {
-                        navController.navigate("home") {
-                            popUpTo("profileSelector") { inclusive = true }
-                        }
-                    }
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-        CreateNewProfileButton(navController)
+    LaunchedEffect(Unit) {
+        profileViewModel.loadProfiles()
     }
-}
 
-@Composable
-private fun ProfileGridItem(
-    profile: Profile,
-    onEdit: () -> Unit,
-    onDelete: () -> Unit,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .padding(12.dp)
-            .fillMaxWidth()
-            .aspectRatio(0.9f)
-            .clickable { onClick() }
-    ) {
-        // Imagen circular y nombre debajo
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.align(Alignment.TopCenter)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Imagen circular
-                if (!profile.image.isNullOrBlank()) {
-                    Image(
-                        painter = rememberAsyncImagePainter(profile.image),
-                        contentDescription = "Avatar",
-                        modifier = Modifier
-                            .size(64.dp)
-                            .clip(CircleShape)
-                            .background(Color.LightGray, CircleShape)
-                    )
-                } else {
-                    Box(
-                        modifier = Modifier
-                            .size(64.dp)
-                            .clip(CircleShape)
-                            .background(Color.Gray)
-                    )
-                }
-                // Acciones pegadas a la derecha de la imagen
-                Column(
-                    modifier = Modifier.padding(start = 4.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    IconButton(
-                        onClick = { onEdit() },
-                        modifier = Modifier.size(28.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Edit,
-                            contentDescription = "Editar perfil"
-                        )
-                    }
-                    IconButton(
-                        onClick = { onDelete() },
-                        modifier = Modifier.size(28.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Delete,
-                            contentDescription = "Eliminar perfil",
-                            tint = MaterialTheme.colorScheme.error
-                        )
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Selecciona un Perfil") },
+                actions = {
+                    IconButton(onClick = {
+                        navController.navigate(Routes.CREATE_PROFILE)
+                    }) {
+                        Icon(Icons.Default.Add, contentDescription = "Nuevo Perfil")
                     }
                 }
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = profile.name,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
             )
         }
+    ) { padding ->
+        Box(modifier = Modifier.padding(padding)) {
+            LazyColumn(
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(profiles) { profile ->
+                    ProfileCard(
+                        profile = profile,
+                        onSelect = {
+                            profileViewModel.selectProfile(profile.id)
+                            navController.navigate(Routes.HOME) {
+                                popUpTo(Routes.PROFILE_SELECTOR) { inclusive = true }
+                            }
+                        },
+                        onEdit = {
+                            navController.navigate(Routes.CREATE_PROFILE_WITH_ID.replace("{profileId}", profile.id.toString()))
+                        },
+                        onDelete = {
+                            scope.launch {
+                                profileViewModel.deleteProfile(profile)
+                            }
+                        }
+                    )
+                }
+            }
+        }
     }
 }
 
 @Composable
-private fun CreateNewProfileButton(navController: NavController) {
-    TextButton(onClick = { navController.navigate("createProfile") }) {
-        Text("Crear nuevo perfil")
-    }
-}
-
-@Composable
-private fun EmptyProfileView(navController: NavController) {
-    Column(
+fun ProfileCard(
+    profile: Profile,
+    onSelect: () -> Unit,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
+) {
+    Card(
+        shape = RoundedCornerShape(12.dp),
         modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+            .fillMaxWidth()
+            .clickable { onSelect() },
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF0F0F0))
     ) {
-        Text("No tienes perfiles creados. Crea uno nuevo.")
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = { navController.navigate("createProfile") }) {
-            Text("Crear perfil")
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(16.dp)
+        ) {
+            if (!profile.image.isNullOrEmpty()) {
+                Image(
+                    painter = rememberAsyncImagePainter(profile.image),
+                    contentDescription = "Imagen de perfil",
+                    modifier = Modifier
+                        .size(64.dp)
+                        .background(Color.Gray, shape = RoundedCornerShape(8.dp)),
+                    contentScale = ContentScale.Crop
+                )
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(profile.name, style = MaterialTheme.typography.bodyLarge)
+                Text(profile.gender.name, style = MaterialTheme.typography.bodyMedium)
+            }
+
+            IconButton(onClick = onEdit) {
+                Icon(Icons.Default.Add, contentDescription = "Editar perfil")
+            }
+            IconButton(onClick = onDelete) {
+                Icon(Icons.Default.Delete, contentDescription = "Eliminar perfil")
+            }
         }
     }
 }

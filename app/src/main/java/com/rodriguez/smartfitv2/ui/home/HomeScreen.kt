@@ -1,9 +1,12 @@
 package com.rodriguez.smartfitv2.ui.home
 
+
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
 import androidx.compose.animation.core.*
+import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -20,14 +23,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -35,18 +35,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.rodriguez.smartfitv2.R
+import com.rodriguez.smartfitv2.navigation.Routes
 import com.rodriguez.smartfitv2.ui.theme.SmartFitv2Theme
+import com.rodriguez.smartfitv2.viewmodel.ProfileViewModel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+
 
 @Composable
 fun HomeScreen(
     navController: NavController,
-    userName: String = "Usuario",
-    userProfileImage: Int = R.drawable.ic_profile_placeholder
+    profileViewModel: ProfileViewModel
 ) {
     SmartFitv2Theme {
+        val currentProfile by profileViewModel.currentProfile.collectAsState()
+        val userName = currentProfile?.name ?: "Usuario"
         val scope = rememberCoroutineScope()
         val scale = remember { Animatable(0.8f) }
 
@@ -98,7 +100,7 @@ fun HomeScreen(
 
                 // Botón de perfil
                 IconButton(
-                    onClick = { navController.navigate("profile") },
+                    onClick = { navController.navigate(Routes.PROFILE) },
                     modifier = Modifier
                         .size(48.dp)
                         .clip(CircleShape)
@@ -116,12 +118,25 @@ fun HomeScreen(
                     )
                 }
             }
+            // Saludo con el nombre del usuario
+            Text(
+                text = "¡Hola, $userName!",
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 80.dp),
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold
+            )
+
 
             // Hero Button animado y llamativo (reemplaza la cinta métrica)
             HeroTypewriterButton(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
-                    .padding(top = 120.dp) // BAJA el botón para que no choque con la cámara/notch
+                    .padding(top = 120.dp),
+                onClick = {
+                    navController.navigate(Routes.AVATAR_CONFIG)
+                }
             )
 
             // Botones inferiores
@@ -140,15 +155,15 @@ fun HomeScreen(
                 ) {
                     // Barra de búsqueda con placeholder animado
                     SearchBarWithIcons(
-                        onSearchClick = { navController.navigate("catalog") },
-                        onCameraClick = { navController.navigate("qrscanner") },
+                        onSearchClick = { navController.navigate(Routes.CATALOG) },
+                        onCameraClick = { navController.navigate(Routes.QRSCANNER) },
                         onMicClick = { Log.d("SFIT", "Micrófono pulsado") }
                     )
 
                     Spacer(modifier = Modifier.height(32.dp))
 
                     Button(
-                        onClick = { navController.navigate("favorites") },
+                        onClick = { navController.navigate(Routes.FAVORITES) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 8.dp),
@@ -158,7 +173,7 @@ fun HomeScreen(
                     }
 
                     Button(
-                        onClick = { navController.navigate("measurement_history") },
+                        onClick = { navController.navigate(Routes.MEASUREMENT_HISTORY) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 8.dp),
@@ -169,10 +184,11 @@ fun HomeScreen(
 
                     Button(
                         onClick = {
-                            navController.navigate("login") {
-                                popUpTo("home") { inclusive = true }
+                            navController.navigate(Routes.PROFILE_SELECTOR) {
+                                popUpTo(Routes.HOME) { inclusive = true }
                             }
                         },
+
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 8.dp),
@@ -416,4 +432,3 @@ fun HeroTypewriterButton(
         }
     }
 }
-
