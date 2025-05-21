@@ -21,6 +21,8 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import java.util.concurrent.Executors
+import android.net.Uri
+
 
 @OptIn(ExperimentalGetImage::class)
 @Composable
@@ -73,9 +75,9 @@ fun QrScannerScreen(navController: NavController, onCodeScanned: (String) -> Uni
                                 for (barcode in barcodes) {
                                     barcode.rawValue?.let {
                                         Log.d("QR_SCAN", "Código escaneado: $it")
-                                        onCodeScanned(it)
-                                        navController.popBackStack()
+                                        navController.navigate("select_part_screen/${android.net.Uri.encode(it)}")
                                     }
+
                                 }
                             }
                             .addOnCompleteListener {

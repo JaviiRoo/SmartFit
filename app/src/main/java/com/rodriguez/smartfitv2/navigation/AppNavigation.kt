@@ -1,6 +1,7 @@
 package com.rodriguez.smartfitv2.navigation
 
 import android.util.Log
+import com.rodriguez.smartfitv2.ui.avatar.SelectPartScreen
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -53,9 +54,20 @@ fun AppNavigation(navController: NavHostController, profileRepository: ProfileRe
         }
         composable(Routes.QRSCANNER) {
             QrScannerScreen(navController) { scannedText ->
-                Log.d("QR_RESULT", scannedText)
+                navController.previousBackStackEntry
+                    ?.savedStateHandle
+                    ?.set("parte_actualizada", scannedText)
+                navController.popBackStack()
             }
         }
+        composable(
+            route = "select_part_screen/{medida}",
+            arguments = listOf(navArgument("medida") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val medida = backStackEntry.arguments?.getString("medida") ?: ""
+            SelectPartScreen(navController, medida)
+        }
+
         composable(Routes.PROFILE) {
             ProfileScreen(navController)
         }
