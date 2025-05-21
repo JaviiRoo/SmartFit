@@ -1,6 +1,7 @@
 package com.rodriguez.smartfitv2.navigation
 
 object Routes {
+    const val SPLASH = "splash"                 // ← nueva constante
     const val LOGIN = "login"
     const val REGISTER = "register"
     const val HOME = "home"

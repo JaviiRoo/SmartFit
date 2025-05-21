@@ -20,12 +20,19 @@ import com.rodriguez.smartfitv2.ui.profile.ProfileScreen
 import com.rodriguez.smartfitv2.ui.profile.ProfileSelectorScreen
 import com.rodriguez.smartfitv2.ui.qr.QrScannerScreen
 import com.rodriguez.smartfitv2.ui.register.RegisterScreen
+import com.rodriguez.smartfitv2.ui.splash.SplashScreen         // ← importar el splash
 import com.rodriguez.smartfitv2.viewmodel.ProfileFactoryViewModel
 import com.rodriguez.smartfitv2.viewmodel.ProfileViewModel
 
 @Composable
 fun AppNavigation(navController: NavHostController, profileRepository: ProfileRepository) {
-    NavHost(navController = navController, startDestination = Routes.LOGIN) {
+    NavHost(
+        navController = navController,
+        startDestination = Routes.SPLASH              // ← ahora arranca en splash
+    ) {
+        composable(Routes.SPLASH) {
+            SplashScreen(navController)
+        }
         composable(Routes.LOGIN) {
             LoginScreen(navController)
         }
