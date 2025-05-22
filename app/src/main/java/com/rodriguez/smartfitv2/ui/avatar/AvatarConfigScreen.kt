@@ -1,34 +1,50 @@
 package com.rodriguez.smartfitv2.ui.avatar
 
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.*
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.rodriguez.smartfitv2.navigation.Routes
+import com.rodriguez.smartfitv2.data.database.AppDatabase
+import com.rodriguez.smartfitv2.viewmodel.AvatarConfigViewModel
+import com.rodriguez.smartfitv2.viewmodel.AvatarConfigViewModelFactory
 import com.rodriguez.smartfitv2.viewmodel.ProfileViewModel
+import com.rodriguez.smartfitv2.navigation.Routes
+
 
 @Composable
 fun AvatarConfigScreen(
     navController: NavController,
     profileViewModel: ProfileViewModel
 ) {
-    var partes by remember { mutableStateOf(listOf(false, false, false, false)) }
+    // Instancia el ViewModel usando el Factory manual
+    val context = LocalContext.current
+    val db = remember { AppDatabase.getDatabase(context) }
+    val factory = remember { AvatarConfigViewModelFactory(db.avatarPartDao()) }
+    val avatarConfigViewModel: AvatarConfigViewModel = viewModel(factory = factory)
+
+    // Observa el estado persistente de Room
+    val avatarParts by avatarConfigViewModel.avatarParts.collectAsState()
+
+    // Procesa los datos para pintar los cuadros
+    val partes = MutableList(4) { false }
+    val medidas = MutableList<String?>(4) { null }
+    avatarParts.forEach { part ->
+        partes[part.partIndex] = true
+        medidas[part.partIndex] = part.medida
+    }
+
     var parteSeleccionada by remember { mutableStateOf<Int?>(null) }
 
     Column(
@@ -55,11 +71,15 @@ fun AvatarConfigScreen(
                                     color = if (parteSeleccionada == 0) Color.Blue else Color.Black
                                 )
                             )
-
                             .background(if (partes[0]) Color.Green else Color.White)
                             .clickable { parteSeleccionada = 0 },
                         contentAlignment = Alignment.Center
-                    ) { Text("Parte 1") }
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("Parte 1")
+                            medidas[0]?.let { Text(it) }
+                        }
+                    }
                     Box(
                         Modifier
                             .weight(1f)
@@ -70,11 +90,15 @@ fun AvatarConfigScreen(
                                     color = if (parteSeleccionada == 1) Color.Blue else Color.Black
                                 )
                             )
-
                             .background(if (partes[1]) Color.Green else Color.White)
                             .clickable { parteSeleccionada = 1 },
                         contentAlignment = Alignment.Center
-                    ) { Text("Parte 2") }
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("Parte 2")
+                            medidas[1]?.let { Text(it) }
+                        }
+                    }
                 }
                 Row(Modifier.weight(1f)) {
                     Box(
@@ -87,11 +111,15 @@ fun AvatarConfigScreen(
                                     color = if (parteSeleccionada == 2) Color.Blue else Color.Black
                                 )
                             )
-
                             .background(if (partes[2]) Color.Green else Color.White)
                             .clickable { parteSeleccionada = 2 },
                         contentAlignment = Alignment.Center
-                    ) { Text("Parte 3") }
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("Parte 3")
+                            medidas[2]?.let { Text(it) }
+                        }
+                    }
                     Box(
                         Modifier
                             .weight(1f)
@@ -102,11 +130,15 @@ fun AvatarConfigScreen(
                                     color = if (parteSeleccionada == 3) Color.Blue else Color.Black
                                 )
                             )
-
                             .background(if (partes[3]) Color.Green else Color.White)
                             .clickable { parteSeleccionada = 3 },
                         contentAlignment = Alignment.Center
-                    ) { Text("Parte 4") }
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("Parte 4")
+                            medidas[3]?.let { Text(it) }
+                        }
+                    }
                 }
             }
         }
@@ -116,6 +148,7 @@ fun AvatarConfigScreen(
         Button(
             onClick = {
                 if (parteSeleccionada != null) {
+                    navController.currentBackStackEntry?.savedStateHandle?.set("parte_seleccionada", parteSeleccionada)
                     navController.navigate(Routes.QRSCANNER)
                 }
             },
@@ -126,19 +159,16 @@ fun AvatarConfigScreen(
         }
     }
 
-    // Observa el resultado del QR y actualiza la parte correspondiente (igual que antes)
+    // Observa el resultado del QR y actualiza la parte correspondiente
     val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
     val parteActualizada = savedStateHandle
-        ?.getLiveData<String>("parte_actualizada")
+        ?.getLiveData<Pair<Int, String>>("parte_actualizada")
         ?.observeAsState(initial = null)
 
     LaunchedEffect(parteActualizada?.value) {
-        parteActualizada?.value?.let { medida ->
-            // Marca la parte seleccionada como "con medida"
-            parteSeleccionada?.let { index ->
-                partes = partes.toMutableList().also { it[index] = true }
-            }
-            savedStateHandle?.remove<String>("parte_actualizada")
+        parteActualizada?.value?.let { (parteIndex, medida) ->
+            avatarConfigViewModel.registrarMedida(parteIndex, medida)
+            savedStateHandle?.remove<Pair<Int, String>>("parte_actualizada")
         }
     }
 }

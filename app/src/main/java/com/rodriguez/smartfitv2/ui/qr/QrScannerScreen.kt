@@ -73,13 +73,27 @@ fun QrScannerScreen(navController: NavController, onCodeScanned: (String) -> Uni
                         scanner.process(inputImage)
                             .addOnSuccessListener { barcodes ->
                                 for (barcode in barcodes) {
-                                    barcode.rawValue?.let {
-                                        Log.d("QR_SCAN", "Código escaneado: $it")
-                                        navController.navigate("select_part_screen/${android.net.Uri.encode(it)}")
-                                    }
+                                    barcode.rawValue?.let { scannedText ->
+                                        Log.d("QR_SCAN", "Código escaneado: $scannedText")
 
+                                        // Obtén la parte seleccionada guardada desde AvatarConfigScreen
+                                        val parteSeleccionada = navController.previousBackStackEntry
+                                            ?.savedStateHandle
+                                            ?.get<Int>("parte_seleccionada")
+
+                                        if (parteSeleccionada != null) {
+                                            // Guarda el resultado (parte + medida) y vuelve a la pantalla anterior
+                                            navController.previousBackStackEntry
+                                                ?.savedStateHandle
+                                                ?.set("parte_actualizada", Pair(parteSeleccionada, scannedText))
+                                            navController.popBackStack()
+                                        } else {
+                                            Log.e("QR_SCAN", "No hay parte seleccionada")
+                                        }
+                                    }
                                 }
                             }
+
                             .addOnCompleteListener {
                                 imageProxy.close()
                             }

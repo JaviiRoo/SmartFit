@@ -1,7 +1,5 @@
 package com.rodriguez.smartfitv2.navigation
 
-import android.util.Log
-import com.rodriguez.smartfitv2.ui.avatar.SelectPartScreen
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -11,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.rodriguez.smartfitv2.data.repository.ProfileRepository
 import com.rodriguez.smartfitv2.ui.avatar.AvatarConfigScreen
+import com.rodriguez.smartfitv2.ui.avatar.SelectPartScreen
 import com.rodriguez.smartfitv2.ui.catalog.CatalogScreen
 import com.rodriguez.smartfitv2.ui.favorites.FavoritesScreen
 import com.rodriguez.smartfitv2.ui.home.HomeScreen
@@ -21,7 +20,7 @@ import com.rodriguez.smartfitv2.ui.profile.ProfileScreen
 import com.rodriguez.smartfitv2.ui.profile.ProfileSelectorScreen
 import com.rodriguez.smartfitv2.ui.qr.QrScannerScreen
 import com.rodriguez.smartfitv2.ui.register.RegisterScreen
-import com.rodriguez.smartfitv2.ui.splash.SplashScreen         // ← importar el splash
+import com.rodriguez.smartfitv2.ui.splash.SplashScreen
 import com.rodriguez.smartfitv2.viewmodel.ProfileFactoryViewModel
 import com.rodriguez.smartfitv2.viewmodel.ProfileViewModel
 
