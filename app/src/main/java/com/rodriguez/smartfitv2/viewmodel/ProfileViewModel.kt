@@ -1,5 +1,8 @@
 package com.rodriguez.smartfitv2.viewmodel
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rodriguez.smartfitv2.data.model.Profile
@@ -18,9 +21,15 @@ class ProfileViewModel(private val repository: ProfileRepository) : ViewModel() 
         .getSelectedProfileFlow()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
+    // --- NUEVO: Estado de carga ---
+    var isLoading by mutableStateOf(true)
+        private set
+
     fun loadProfiles() {
         viewModelScope.launch {
+            isLoading = true
             _profiles.value = repository.getAllProfiles()
+            isLoading = false
         }
     }
 

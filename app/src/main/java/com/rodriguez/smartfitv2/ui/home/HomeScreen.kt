@@ -1,6 +1,5 @@
 package com.rodriguez.smartfitv2.ui.home
 
-
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
 import android.util.Log
@@ -40,16 +39,16 @@ import com.rodriguez.smartfitv2.ui.theme.SmartFitv2Theme
 import com.rodriguez.smartfitv2.viewmodel.ProfileViewModel
 import kotlinx.coroutines.delay
 
-
 @Composable
 fun HomeScreen(
     navController: NavController,
-    profileViewModel: ProfileViewModel
+    profileViewModel: ProfileViewModel,
+    selectedProfileId: Int
 ) {
     SmartFitv2Theme {
+        // Cambiado: obtenemos el perfil activo por ID para el saludo
         val currentProfile by profileViewModel.currentProfile.collectAsState()
         val userName = currentProfile?.name ?: "Usuario"
-        val scope = rememberCoroutineScope()
         val scale = remember { Animatable(0.8f) }
 
         LaunchedEffect(Unit) {
@@ -64,25 +63,14 @@ fun HomeScreen(
                 .fillMaxSize()
                 .background(Color.White)
         ) {
-            // Si quieres un fondo blanco puro, comenta el siguiente bloque
-            /*
-            Image(
-                painter = painterResource(id = R.drawable.fondoprobador2),
-                contentDescription = "Fondo",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
-            */
-
-            // Fila superior: Menú hamburguesa a la izquierda y perfil a la derecha
+            // Fila superior: Menú hamburguesa y perfil
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 36.dp, start = 16.dp, end = 16.dp), // BAJA ambos iconos para evitar la cámara
+                    .padding(top = 36.dp, start = 16.dp, end = 16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Menú hamburguesa
                 IconButton(
                     onClick = { /* TODO: abrir drawer o menú lateral */ },
                     modifier = Modifier
@@ -98,7 +86,6 @@ fun HomeScreen(
                     )
                 }
 
-                // Botón de perfil
                 IconButton(
                     onClick = { navController.navigate(Routes.PROFILE) },
                     modifier = Modifier
@@ -118,7 +105,8 @@ fun HomeScreen(
                     )
                 }
             }
-            // Saludo con el nombre del usuario
+
+            // Saludo con el nombre del usuario activo
             Text(
                 text = "¡Hola, $userName!",
                 modifier = Modifier
@@ -128,14 +116,15 @@ fun HomeScreen(
                 fontWeight = FontWeight.Bold
             )
 
-
-            // Hero Button animado y llamativo (reemplaza la cinta métrica)
+            // Hero Button animado y llamativo
             HeroTypewriterButton(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .padding(top = 120.dp),
                 onClick = {
-                    navController.navigate(Routes.AVATAR_CONFIG)
+                    navController.navigate(
+                        Routes.AVATAR_CONFIG_WITH_ARG.replace("{profileId}", selectedProfileId.toString())
+                    )
                 }
             )
 
@@ -153,7 +142,6 @@ fun HomeScreen(
                         .padding(horizontal = 24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Barra de búsqueda con placeholder animado
                     SearchBarWithIcons(
                         onSearchClick = { navController.navigate(Routes.CATALOG) },
                         onCameraClick = { navController.navigate(Routes.QRSCANNER) },
@@ -182,13 +170,13 @@ fun HomeScreen(
                         Text("Historial de Medidas", color = Color.White)
                     }
 
+                    // Botón para cambiar de perfil
                     Button(
                         onClick = {
                             navController.navigate(Routes.PROFILE_SELECTOR) {
-                                popUpTo(Routes.HOME) { inclusive = true }
+                                popUpTo(Routes.HOME_WITH_ARG) { inclusive = true }
                             }
                         },
-
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 8.dp),

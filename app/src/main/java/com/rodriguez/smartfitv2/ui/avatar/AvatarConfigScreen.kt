@@ -22,19 +22,24 @@ import com.rodriguez.smartfitv2.viewmodel.AvatarConfigViewModelFactory
 import com.rodriguez.smartfitv2.viewmodel.ProfileViewModel
 import com.rodriguez.smartfitv2.navigation.Routes
 
-
 @Composable
 fun AvatarConfigScreen(
     navController: NavController,
-    profileViewModel: ProfileViewModel
+    profileViewModel: ProfileViewModel,
+    selectedProfileId: Int // <-- Recibe el id del perfil seleccionado
 ) {
-    // Instancia el ViewModel usando el Factory manual
+    // Instancia el ViewModel usando el Factory manual (por perfil)
     val context = LocalContext.current
     val db = remember { AppDatabase.getDatabase(context) }
     val factory = remember { AvatarConfigViewModelFactory(db.avatarPartDao()) }
     val avatarConfigViewModel: AvatarConfigViewModel = viewModel(factory = factory)
 
-    // Observa el estado persistente de Room
+    // Cada vez que cambia el perfil, actualiza el ViewModel
+    LaunchedEffect(selectedProfileId) {
+        avatarConfigViewModel.setActiveProfileId(selectedProfileId)
+    }
+
+    // Observa el estado persistente de Room para el perfil activo
     val avatarParts by avatarConfigViewModel.avatarParts.collectAsState()
 
     // Procesa los datos para pintar los cuadros
@@ -47,9 +52,24 @@ fun AvatarConfigScreen(
 
     var parteSeleccionada by remember { mutableStateOf<Int?>(null) }
 
+    // Observa el resultado del QR y actualiza la parte correspondiente
+    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
+    val parteActualizada = savedStateHandle
+        ?.getLiveData<Pair<Int, String>>("parte_actualizada")
+        ?.observeAsState(initial = null)
+
+    LaunchedEffect(parteActualizada?.value) {
+        parteActualizada?.value?.let { (parteIndex, medida) ->
+            avatarConfigViewModel.registrarMedida(parteIndex, medida)
+            savedStateHandle?.remove<Pair<Int, String>>("parte_actualizada")
+        }
+    }
+
+    // UI principal
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(Color.White) // Fondo blanco
             .padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -157,18 +177,21 @@ fun AvatarConfigScreen(
         ) {
             Text("Registrar medida por QR")
         }
-    }
 
-    // Observa el resultado del QR y actualiza la parte correspondiente
-    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
-    val parteActualizada = savedStateHandle
-        ?.getLiveData<Pair<Int, String>>("parte_actualizada")
-        ?.observeAsState(initial = null)
+        Spacer(modifier = Modifier.height(16.dp))
 
-    LaunchedEffect(parteActualizada?.value) {
-        parteActualizada?.value?.let { (parteIndex, medida) ->
-            avatarConfigViewModel.registrarMedida(parteIndex, medida)
-            savedStateHandle?.remove<Pair<Int, String>>("parte_actualizada")
+        // Botón "Listo" para volver a la Home del perfil
+        Button(
+            onClick = {
+                navController.navigate(
+                    Routes.HOME_WITH_ARG.replace("{profileId}", selectedProfileId.toString())
+                ) {
+                    popUpTo(Routes.AVATAR_CONFIG_WITH_ARG) { inclusive = true }
+                }
+            },
+            modifier = Modifier.fillMaxWidth(0.7f)
+        ) {
+            Text("Listo")
         }
     }
 }

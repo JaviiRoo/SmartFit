@@ -28,7 +28,7 @@ import com.rodriguez.smartfitv2.viewmodel.ProfileViewModel
 fun AppNavigation(navController: NavHostController, profileRepository: ProfileRepository) {
     NavHost(
         navController = navController,
-        startDestination = Routes.SPLASH              // ← ahora arranca en splash
+        startDestination = Routes.SPLASH
     ) {
         composable(Routes.SPLASH) {
             SplashScreen(navController)
@@ -39,11 +39,19 @@ fun AppNavigation(navController: NavHostController, profileRepository: ProfileRe
         composable(Routes.REGISTER) {
             RegisterScreen(navController)
         }
-        composable(Routes.HOME) {
+        composable(
+            route = Routes.HOME_WITH_ARG,
+            arguments = listOf(navArgument("profileId") { type = NavType.IntType })
+        ) { backStackEntry ->
             val profileViewModel: ProfileViewModel = viewModel(
                 factory = ProfileFactoryViewModel(profileRepository)
             )
-            HomeScreen(navController, profileViewModel)
+            val profileId = backStackEntry.arguments?.getInt("profileId") ?: 0
+            HomeScreen(
+                navController = navController,
+                profileViewModel = profileViewModel,
+                selectedProfileId = profileId
+            )
         }
         composable(Routes.MEASUREMENT_HISTORY) {
             MeasurementHistoryScreen(navController)
@@ -66,15 +74,22 @@ fun AppNavigation(navController: NavHostController, profileRepository: ProfileRe
             val medida = backStackEntry.arguments?.getString("medida") ?: ""
             SelectPartScreen(navController, medida)
         }
-
         composable(Routes.PROFILE) {
             ProfileScreen(navController)
         }
-        composable(Routes.AVATAR_CONFIG) {
+        composable(
+            route = Routes.AVATAR_CONFIG_WITH_ARG,
+            arguments = listOf(navArgument("profileId") { type = NavType.IntType })
+        ) { backStackEntry ->
             val profileViewModel: ProfileViewModel = viewModel(
                 factory = ProfileFactoryViewModel(profileRepository)
             )
-            AvatarConfigScreen(navController, profileViewModel)
+            val profileId = backStackEntry.arguments?.getInt("profileId") ?: 0
+            AvatarConfigScreen(
+                navController = navController,
+                profileViewModel = profileViewModel,
+                selectedProfileId = profileId
+            )
         }
         composable(Routes.FAVORITES) {
             FavoritesScreen(navController)

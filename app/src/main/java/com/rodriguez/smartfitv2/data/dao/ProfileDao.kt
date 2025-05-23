@@ -17,7 +17,7 @@ interface ProfileDao {
     fun getAllProfilesFlow(): Flow<List<Profile>>
 
     @Insert
-    suspend fun insertProfile(profile: Profile)
+    suspend fun insertProfile(profile: Profile): Long
 
     @Update
     suspend fun updateProfile(profile: Profile)

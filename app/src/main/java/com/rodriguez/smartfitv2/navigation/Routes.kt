@@ -1,10 +1,10 @@
 package com.rodriguez.smartfitv2.navigation
 
 object Routes {
-    const val SPLASH = "splash"                 // ← nueva constante
+    const val SPLASH = "splash"
     const val LOGIN = "login"
     const val REGISTER = "register"
-    const val HOME = "home"
+    const val HOME_WITH_ARG = "home/{profileId}"
     const val MEASUREMENT_HISTORY = "measurement_history"
     const val CATALOG = "catalog"
     const val QRSCANNER = "qrscanner"
@@ -13,5 +13,5 @@ object Routes {
     const val PROFILE_SELECTOR = "profile_selector"
     const val CREATE_PROFILE = "create_profile"
     const val CREATE_PROFILE_WITH_ID = "create_profile/{profileId}"
-    const val AVATAR_CONFIG = "avatar_config"
+    const val AVATAR_CONFIG_WITH_ARG = "avatar_config/{profileId}"
 }

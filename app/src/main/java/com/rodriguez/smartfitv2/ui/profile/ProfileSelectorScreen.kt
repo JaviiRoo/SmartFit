@@ -1,4 +1,3 @@
-// ProfileSelectorScreen.kt
 package com.rodriguez.smartfitv2.ui.profile
 
 import androidx.compose.foundation.Image
@@ -34,11 +33,35 @@ fun ProfileSelectorScreen(
     profileViewModel: ProfileViewModel
 ) {
     val scope = rememberCoroutineScope()
-    val profiles by profileViewModel.profiles.collectAsState(initial = emptyList())
+    val profilesState by profileViewModel.profiles.collectAsState(initial = null)
+    val isLoading = profileViewModel.isLoading
 
+    // Copia local inmutable de la propiedad delegada
+    val profilesStateDelegate = profilesState
+
+    // Recarga perfiles al entrar en la pantalla
     LaunchedEffect(Unit) {
         profileViewModel.loadProfiles()
     }
+
+    // Solo navega a crear perfil si la carga ha terminado, la lista está cargada y vacía
+    LaunchedEffect(isLoading, profilesStateDelegate) {
+        if (!isLoading && profilesStateDelegate != null && profilesStateDelegate.isEmpty()) {
+            navController.navigate(Routes.CREATE_PROFILE) {
+                popUpTo(Routes.PROFILE_SELECTOR) { inclusive = true }
+            }
+        }
+    }
+
+    // Muestra un loading mientras se cargan los perfiles
+    if (isLoading || profilesStateDelegate == null) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+        return
+    }
+
+    val profiles: List<Profile> = profilesStateDelegate
 
     Scaffold(
         topBar = {
@@ -64,16 +87,21 @@ fun ProfileSelectorScreen(
                         profile = profile,
                         onSelect = {
                             profileViewModel.selectProfile(profile.id)
-                            navController.navigate(Routes.HOME) {
+                            navController.navigate(
+                                Routes.HOME_WITH_ARG.replace("{profileId}", profile.id.toString())
+                            ) {
                                 popUpTo(Routes.PROFILE_SELECTOR) { inclusive = true }
                             }
                         },
                         onEdit = {
-                            navController.navigate(Routes.CREATE_PROFILE_WITH_ID.replace("{profileId}", profile.id.toString()))
+                            navController.navigate(
+                                Routes.CREATE_PROFILE_WITH_ID.replace("{profileId}", profile.id.toString())
+                            )
                         },
                         onDelete = {
                             scope.launch {
                                 profileViewModel.deleteProfile(profile)
+                                profileViewModel.loadProfiles()
                             }
                         }
                     )

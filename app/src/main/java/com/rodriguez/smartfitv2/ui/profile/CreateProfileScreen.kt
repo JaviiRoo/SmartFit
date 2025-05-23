@@ -1,4 +1,3 @@
-// CreateProfileScreen.kt
 package com.rodriguez.smartfitv2.ui.profile
 
 import android.net.Uri
@@ -119,7 +118,9 @@ fun CreateProfileScreen(
 
             Button(
                 onClick = { picker.launch("image/*") },
-                modifier = Modifier.fillMaxWidth().height(48.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
                 shape = RoundedCornerShape(24.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = magenta)
             ) {
@@ -141,6 +142,7 @@ fun CreateProfileScreen(
 
             Spacer(Modifier.weight(1f))
 
+            // --- BLOQUE REVISADO Y ADAPTADO ---
             Button(
                 onClick = {
                     scope.launch {
@@ -158,17 +160,21 @@ fun CreateProfileScreen(
                                 }
                             }
                         } else {
-                            profileRepository.insertProfile(profile)
+                            val newId = profileRepository.insertProfile(profile)
                             withContext(Dispatchers.Main) {
-                                navController.navigate(Routes.HOME) {
-                                    popUpTo(Routes.CREATE_PROFILE) { inclusive = true }
+                                navController.navigate(
+                                    Routes.HOME_WITH_ARG.replace("{profileId}", newId.toInt().toString())
+                                ) {
+                                    popUpTo(Routes.PROFILE_SELECTOR) { inclusive = true }
                                 }
                             }
                         }
                     }
                 },
                 enabled = name.isNotBlank(),
-                modifier = Modifier.fillMaxWidth().height(56.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
                 shape = RoundedCornerShape(28.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = magenta)
             ) {

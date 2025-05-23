@@ -5,7 +5,6 @@ import com.rodriguez.smartfitv2.data.model.Profile
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
 
 class ProfileRepository(private val profileDao: ProfileDao) {
     private val _selectedProfile = MutableStateFlow<Profile?>(null)
@@ -18,16 +17,14 @@ class ProfileRepository(private val profileDao: ProfileDao) {
     }
 
     // Inserción, actualización, eliminación
-    suspend fun insertProfile(profile: Profile) = kotlin.runCatching {
+    suspend fun insertProfile(profile: Profile): Long = // ← ahora devuelve el id
         profileDao.insertProfile(profile)
-        // opcional: actualizar listado o selected
-    }
-    suspend fun updateProfile(profile: Profile) = kotlin.runCatching {
+
+    suspend fun updateProfile(profile: Profile) =
         profileDao.updateProfile(profile)
-    }
-    suspend fun deleteProfile(profile: Profile) = kotlin.runCatching {
+
+    suspend fun deleteProfile(profile: Profile) =
         profileDao.deleteProfile(profile)
-    }
 
     // Obtener perfil por ID
     private suspend fun fetchProfileById(id: Int): Profile? = try {
