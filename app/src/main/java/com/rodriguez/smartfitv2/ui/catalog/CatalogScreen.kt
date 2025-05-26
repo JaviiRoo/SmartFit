@@ -63,6 +63,7 @@ fun CatalogScreen(navController: NavController) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryFilter(categories: List<String>, selected: String, onCategorySelected: (String) -> Unit) {
     Row(

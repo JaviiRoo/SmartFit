@@ -22,7 +22,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     fun loginUser(
         email: String,
         password: String,
-        onSuccess: () -> Unit,
+        onSuccess: (isAdmin: Boolean) -> Unit,
         onError: (String) -> Unit
     ) {
         // Lanza una corrutina en el scope del ViewModel
@@ -31,7 +31,8 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             val user = repository.loginUser(email, password)
             // Si se encuentra un usuario válido
             if (user != null) {
-                onSuccess() // Llama al callback de éxito
+                val isAdmin = user.role == "admin"
+                onSuccess(isAdmin) // Llama al callback de éxito
             } else {
                 onError("Credenciales incorrectas") // Muestra error
             }

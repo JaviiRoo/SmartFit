@@ -108,10 +108,16 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
                     loginViewModel.loginUser(
                         email,
                         password,
-                        onSuccess = {
+                        onSuccess = { isAdmin ->
                             errorMessage = null
-                            navController.navigate(Routes.PROFILE_SELECTOR) {
-                                popUpTo(Routes.LOGIN) { inclusive = true }
+                            if (isAdmin) {
+                                navController.navigate(Routes.ADMIN_DASHBOARD) {
+                                    popUpTo(Routes.LOGIN) { inclusive = true }
+                                }
+                            } else {
+                                navController.navigate(Routes.PROFILE_SELECTOR) {
+                                    popUpTo(Routes.LOGIN) { inclusive = true }
+                                }
                             }
                         },
                         onError = { error ->
