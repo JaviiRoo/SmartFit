@@ -75,6 +75,7 @@ fun AdminUsersListScreen(
                                 UserListItem(
                                     user = user,
                                     onEdit = {
+                                        // Navegar con el id para editar usuario
                                         navController.navigate("${Routes.ADMIN_USER_FORM}/${user.id}")
                                     },
                                     onDelete = {
@@ -114,10 +115,10 @@ fun AdminUsersListScreen(
             }
         }
 
-        // Mostrar mensaje éxito con Snackbar o similar (ejemplo simplificado)
+        // Limpiar mensajes de éxito para evitar repetirlos
         LaunchedEffect(successMessage) {
             if (successMessage != null) {
-                // Puedes implementar un Snackbar aquí o simplemente limpiar el mensaje después de unos segundos
+                // Aquí puedes mostrar un Snackbar o Toast si quieres
                 viewModel.clearMessages()
             }
         }
@@ -145,6 +146,8 @@ fun UserListItem(
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = "${user.name} ${user.surname}", style = MaterialTheme.typography.titleMedium)
                 Text(text = user.email, style = MaterialTheme.typography.bodyMedium)
+                // Mostrar más info si quieres aquí, por ejemplo:
+                Text(text = "Tel: ${user.telephone}", style = MaterialTheme.typography.bodySmall)
             }
             Row {
                 IconButton(onClick = onEdit) {
