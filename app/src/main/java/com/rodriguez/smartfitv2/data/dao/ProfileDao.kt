@@ -26,5 +26,5 @@ interface ProfileDao {
     suspend fun deleteProfile(profile: Profile)
 
     @Query("SELECT * FROM profile WHERE id = :id")
-    suspend fun getProfileById(id: Int): Profile?
+    suspend fun getProfileById(id: Long): Profile?
 }

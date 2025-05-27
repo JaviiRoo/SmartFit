@@ -71,7 +71,7 @@ fun CreateProfileScreen(
     // Cargar datos si estamos en modo edición
     LaunchedEffect(profileId) {
         if (isEditMode && !isLoaded) {
-            profileRepository.getAllProfiles().find { it.id == profileId }?.let {
+            profileRepository.getAllProfiles().find { it.id == profileId?.toLong() }?.let {
                 name = it.name
                 gender = it.gender
                 imageUri = it.image?.let(Uri::parse)
@@ -126,6 +126,23 @@ fun CreateProfileScreen(
                     modifier = Modifier
                         .size(150.dp)
                         .clip(CircleShape)
+<<<<<<< HEAD
+                        .background(white, CircleShape)
+                )
+            }
+
+            Spacer(Modifier.weight(1f))
+
+            // --- BLOQUE REVISADO Y ADAPTADO ---
+            Button(
+                onClick = {
+                    scope.launch {
+                        val profile = Profile(
+                            id = profileId?.toLong() ?: 0L,
+                            name = name,
+                            gender = gender,
+                            image = imageUri?.toString()
+=======
                         .background(surfaceColor.copy(alpha = 0.7f))
                         .border(2.dp, primaryColor.copy(alpha = 0.5f), CircleShape)
                         .clickable { picker.launch("image/*") },
@@ -137,6 +154,7 @@ fun CreateProfileScreen(
                             contentDescription = "Foto de perfil",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.fillMaxSize()
+>>>>>>> origin/main
                         )
                     } else {
                         Icon(
@@ -290,6 +308,19 @@ fun CreateProfileScreen(
                                     }
                                 }
                             }
+<<<<<<< HEAD
+                        } else {
+                            val newId = profileRepository.insertProfile(profile)
+                            profileRepository.setSelectedProfile(newId)
+                            withContext(Dispatchers.Main) {
+                                navController.navigate(
+                                    Routes.HOME_WITH_ARG.replace(
+                                        "{profileId}",
+                                        newId.toInt().toString()
+                                    )
+                                ) {
+                                    popUpTo(Routes.PROFILE_SELECTOR) { inclusive = true }
+=======
                         }
                     },
                     enabled = name.isNotBlank(),
@@ -316,6 +347,7 @@ fun CreateProfileScreen(
                                     is PressInteraction.Press -> isButtonPressed = true
                                     is PressInteraction.Release -> isButtonPressed = false
                                     is PressInteraction.Cancel -> isButtonPressed = false
+>>>>>>> origin/main
                                 }
                             }
                         }
