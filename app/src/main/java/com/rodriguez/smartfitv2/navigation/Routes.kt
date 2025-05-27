@@ -14,4 +14,7 @@ object Routes {
     const val CREATE_PROFILE = "create_profile"
     const val CREATE_PROFILE_WITH_ID = "create_profile/{profileId}"
     const val AVATAR_CONFIG_WITH_ARG = "avatar_config/{profileId}"
+    const val ADMIN_DASHBOARD = "admin_dashboard"
+    const val ADMIN_USERS_LIST = "admin_users_list"
+    const val ADMIN_USER_FORM = "admin_user_form"
 }

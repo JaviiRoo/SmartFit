@@ -105,9 +105,9 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
                     gender = "",
                     country = "",
                     city = "",
-                    telephone = telefono.toIntOrNull() ?: 0,
-                    registration_date = formatearFecha(System.currentTimeMillis()),
-                    last_connection = System.currentTimeMillis()
+                    telephone = (telefono.toIntOrNull() ?: 0).toString(),
+                    registrationDate = formatearFecha(System.currentTimeMillis()),
+                    lastConnection = System.currentTimeMillis()
                 )
 
                 userDao.insertUser(usuario)

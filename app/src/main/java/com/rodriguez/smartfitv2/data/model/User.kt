@@ -1,5 +1,6 @@
 package com.rodriguez.smartfitv2.data.model
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -13,9 +14,12 @@ data class User(
     val password: String = "",
     val birthday: String = "",
     val gender: String = "",
-    val registration_date: String = "",
-    val last_connection: Long = 0L,
+    @ColumnInfo(name = "registration_date")
+    val registrationDate: String = "",
+    @ColumnInfo(name = "last_connection")
+    val lastConnection: Long = 0L,
     val country: String = "",
     val city: String = "",
-    val telephone: Int = 0
+    val telephone: String = "",
+    val role: String = "user"
 )

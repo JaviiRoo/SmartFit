@@ -151,6 +151,7 @@ fun CatalogScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryFilter(categories: List<String>, selected: String, onCategorySelected: (String) -> Unit) {
     Row(

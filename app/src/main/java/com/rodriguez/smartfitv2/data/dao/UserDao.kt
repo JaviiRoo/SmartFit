@@ -31,4 +31,11 @@ interface UserDao {
     //Recupera un usuario por su correo electrónico.
     @Query("SELECT * FROM users WHERE email = :email LIMIT 1")
     suspend fun getUserByEmail(email: String): User?
+
+    @Query("SELECT * FROM users WHERE role = :role")
+    suspend fun getUsersByRole(role: String): List<User>
+
+    @Query("SELECT * FROM users")
+    suspend fun getAllUsers(): List<User>
+
 }
