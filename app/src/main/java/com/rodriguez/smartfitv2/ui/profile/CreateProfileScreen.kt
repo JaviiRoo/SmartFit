@@ -56,7 +56,7 @@ fun CreateProfileScreen(
     // Cargar datos si editando
     LaunchedEffect(profileId) {
         if (isEditMode && !isLoaded) {
-            profileRepository.getAllProfiles().find { it.id == profileId }?.let {
+            profileRepository.getAllProfiles().find { it.id == profileId?.toLong() }?.let {
                 name = it.name
                 gender = it.gender
                 imageUri = it.image?.let(Uri::parse)
@@ -147,7 +147,7 @@ fun CreateProfileScreen(
                 onClick = {
                     scope.launch {
                         val profile = Profile(
-                            id = profileId ?: 0,
+                            id = profileId?.toLong() ?: 0L,
                             name = name,
                             gender = gender,
                             image = imageUri?.toString()
@@ -161,9 +161,13 @@ fun CreateProfileScreen(
                             }
                         } else {
                             val newId = profileRepository.insertProfile(profile)
+                            profileRepository.setSelectedProfile(newId)
                             withContext(Dispatchers.Main) {
                                 navController.navigate(
-                                    Routes.HOME_WITH_ARG.replace("{profileId}", newId.toInt().toString())
+                                    Routes.HOME_WITH_ARG.replace(
+                                        "{profileId}",
+                                        newId.toInt().toString()
+                                    )
                                 ) {
                                     popUpTo(Routes.PROFILE_SELECTOR) { inclusive = true }
                                 }

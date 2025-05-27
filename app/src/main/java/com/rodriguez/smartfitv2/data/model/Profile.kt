@@ -8,7 +8,7 @@ import androidx.room.TypeConverters
 @TypeConverters(GenderConverter::class) // Usamos el convertidor para Gender
 data class Profile(
     @PrimaryKey(autoGenerate = true) // Marcamos id como clave primaria
-    val id: Int = 0,  // Se genera automáticamente si no se proporciona
+    val id: Long = 0L,  // Se genera automáticamente si no se proporciona
     val name: String,
     val gender: Gender,
     val image: String? = null, // Imagen opcional

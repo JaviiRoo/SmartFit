@@ -1,10 +1,16 @@
 package com.rodriguez.smartfitv2.ui.home
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.collectAsState
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,7 +22,6 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Mic
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -33,9 +38,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.rodriguez.smartfitv2.navigation.Routes
 import com.rodriguez.smartfitv2.ui.theme.SmartFitv2Theme
+import com.rodriguez.smartfitv2.viewmodel.AvatarConfigViewModel
 import com.rodriguez.smartfitv2.viewmodel.ProfileViewModel
 import kotlinx.coroutines.delay
 
@@ -43,19 +50,36 @@ import kotlinx.coroutines.delay
 fun HomeScreen(
     navController: NavController,
     profileViewModel: ProfileViewModel,
+    avatarConfigViewModel: AvatarConfigViewModel,
     selectedProfileId: Int
 ) {
     SmartFitv2Theme {
-        // Cambiado: obtenemos el perfil activo por ID para el saludo
         val currentProfile by profileViewModel.currentProfile.collectAsState()
+        var searchQuery by remember { mutableStateOf("") }
         val userName = currentProfile?.name ?: "Usuario"
         val scale = remember { Animatable(0.8f) }
+        val avatarParts by avatarConfigViewModel.avatarParts.collectAsState()
 
-        LaunchedEffect(Unit) {
-            scale.animateTo(
-                targetValue = 1f,
-                animationSpec = spring()
-            )
+        // Limpieza y extracción de medidas
+        val measures: List<Int?> = (0..3).map { index ->
+            avatarParts.firstOrNull { it.partIndex == index }
+                ?.medida
+                ?.replace("[^\\d]".toRegex(), "") // Elimina todo lo que no sea dígito
+                ?.toIntOrNull()
+        }.also {
+            Log.d("DEBUG_HOME", "Medidas limpias: $it")
+        }
+
+        val userWaist = measures.getOrNull(0)
+        val userChest = measures.getOrNull(1)
+        val userHip = measures.getOrNull(2)
+        val userLeg = measures.getOrNull(3)
+
+        Log.d("DEBUG_HOME", "selectedProfileId: $selectedProfileId")
+        Log.d("DEBUG_HOME", "avatarParts: $avatarParts")
+
+        LaunchedEffect(selectedProfileId) {
+            avatarConfigViewModel.setActiveProfileId(selectedProfileId)
         }
 
         Box(
@@ -142,10 +166,22 @@ fun HomeScreen(
                         .padding(horizontal = 24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    // Barra de búsqueda: NAVEGA PASANDO LAS MEDIDAS
                     SearchBarWithIcons(
-                        onSearchClick = { navController.navigate(Routes.CATALOG) },
+                        query = searchQuery,
+                        onQueryChange = { searchQuery = it },
+                        onSearchClick = {
+                            Log.d("DEBUG_HOME", "Navegando con medidas: Waist: $userWaist, Chest: $userChest, Hip: $userHip, Leg: $userLeg")
+                            navController.navigate(
+                                "catalog_screen/${searchQuery}/${userWaist ?: -1}/${userChest ?: -1}/${userHip ?: -1}/${userLeg ?: -1}"
+                            )
+                        },
                         onCameraClick = { navController.navigate(Routes.QRSCANNER) },
-                        onMicClick = { Log.d("SFIT", "Micrófono pulsado") }
+                        onMicClick = {
+                            navController.navigate(
+                                "catalog_screen/${searchQuery}/${userWaist ?: -1}/${userChest ?: -1}/${userHip ?: -1}/${userLeg ?: -1}"
+                            )
+                        }
                     )
 
                     Spacer(modifier = Modifier.height(32.dp))
@@ -190,18 +226,22 @@ fun HomeScreen(
     }
 }
 
+// ... (mantén aquí tus composables auxiliares como SearchBarWithIcons, TypewriterPlaceholder, HeroTypewriterButton, etc. tal como los tienes)
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchBarWithIcons(
+    query: String,
+    onQueryChange: (String) -> Unit,
     onSearchClick: () -> Unit,
     onCameraClick: () -> Unit,
     onMicClick: () -> Unit
 ) {
-    var query by remember { mutableStateOf("") }
     val purple = Color(0xFF9C27B0)
     OutlinedTextField(
         value = query,
-        onValueChange = { query = it },
+        onValueChange = onQueryChange,
         placeholder = {
             TypewriterPlaceholder(
                 text = "DIME LO QUE BUSCAS",
@@ -311,15 +351,16 @@ fun HeroTypewriterButton(
         )
     }
 
-    // Animación de resplandor
-    val infiniteTransition = rememberInfiniteTransition(label = "glow")
+// Animación de resplandor
+    val infiniteTransition = rememberInfiniteTransition()
     val glow by infiniteTransition.animateFloat(
         initialValue = 0.95f,
         targetValue = 1.08f,
         animationSpec = infiniteRepeatable(
             animation = tween(1200, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
-        ), label = "glowAnim"
+        ),
+        label = "glowAnim"  // label fuera de infiniteRepeatable
     )
 
     // Efecto máquina de escribir + parpadeo
@@ -381,42 +422,17 @@ fun HeroTypewriterButton(
             ),
         contentAlignment = Alignment.Center
     ) {
-        Button(
-            onClick = onClick,
+        Text(
+            text = annotatedString,
+            color = Color.White,
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp,
+            textAlign = TextAlign.Center
+        )
+        Box(
             modifier = Modifier
-                .fillMaxSize(),
-            shape = RoundedCornerShape(32.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Transparent
-            ),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Person,
-                    contentDescription = "Avatar",
-                    tint = Color.White,
-                    modifier = Modifier
-                        .size(38.dp)
-                        .graphicsLayer {
-                            shadowElevation = 12f
-                        }
-                )
-                Spacer(modifier = Modifier.width(18.dp))
-                Text(
-                    text = annotatedString,
-                    color = Color.White,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    maxLines = 3,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        }
+                .matchParentSize()
+                .clickable { onClick() }
+        )
     }
 }

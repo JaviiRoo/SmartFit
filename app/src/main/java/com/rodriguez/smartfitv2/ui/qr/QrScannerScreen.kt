@@ -82,10 +82,11 @@ fun QrScannerScreen(navController: NavController, onCodeScanned: (String) -> Uni
                                             ?.get<Int>("parte_seleccionada")
 
                                         if (parteSeleccionada != null) {
+                                            val soloNumero = scannedText.replace("[^\\d]".toRegex(), "")
                                             // Guarda el resultado (parte + medida) y vuelve a la pantalla anterior
                                             navController.previousBackStackEntry
                                                 ?.savedStateHandle
-                                                ?.set("parte_actualizada", Pair(parteSeleccionada, scannedText))
+                                                ?.set("parte_actualizada", Pair(parteSeleccionada, soloNumero))
                                             navController.popBackStack()
                                         } else {
                                             Log.e("QR_SCAN", "No hay parte seleccionada")
