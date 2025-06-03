@@ -2,6 +2,8 @@ package com.rodriguez.smartfitv2.ui.dashboard
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -83,6 +85,7 @@ fun AdminUserFormScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
                         .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
@@ -144,13 +147,12 @@ fun AdminUserFormScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    // Selector para rol (user/admin)
                     DropdownMenuBox(
                         selectedRole = role,
                         onRoleSelected = { role = it }
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
 
                     Button(
                         onClick = {
@@ -188,10 +190,18 @@ fun AdminUserFormScreen(
                         Text(if (userIdInt == null) "Crear usuario" else "Actualizar usuario")
                     }
 
-                    if (errorMessage != null) {
+                    errorMessage?.let {
                         Text(
-                            text = errorMessage ?: "",
+                            text = it,
                             color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
+                    }
+
+                    successMessage?.let {
+                        Text(
+                            text = it,
+                            color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(top = 8.dp)
                         )
                     }
@@ -209,7 +219,7 @@ fun DropdownMenuBox(
     var expanded by remember { mutableStateOf(false) }
     val roles = listOf("user", "admin")
 
-    Box {
+    Box(modifier = Modifier.fillMaxWidth()) {
         OutlinedTextField(
             value = selectedRole,
             onValueChange = {},
@@ -221,7 +231,8 @@ fun DropdownMenuBox(
         )
         DropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.fillMaxWidth()
         ) {
             roles.forEach { role ->
                 DropdownMenuItem(

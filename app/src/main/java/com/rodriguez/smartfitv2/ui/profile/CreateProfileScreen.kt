@@ -3,28 +3,60 @@ package com.rodriguez.smartfitv2.ui.profile
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.*
-import androidx.compose.animation.core.*
-import androidx.compose.foundation.*
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.PressInteraction
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.*
-import androidx.compose.ui.draw.*
-import androidx.compose.ui.graphics.*
-import androidx.compose.ui.layout.*
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.*
-import androidx.compose.ui.text.font.*
-import androidx.compose.ui.unit.*
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PhotoCamera
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import coil.compose.*
-import com.rodriguez.smartfitv2.R
+import coil.compose.rememberAsyncImagePainter
 import com.rodriguez.smartfitv2.data.model.Gender
 import com.rodriguez.smartfitv2.data.model.Profile
 import com.rodriguez.smartfitv2.data.repository.ProfileRepository
@@ -34,41 +66,35 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateProfileScreen(
     navController: NavHostController,
     profileRepository: ProfileRepository,
     profileId: Int? = null
 ) {
-    // Colores personalizados
-    val primaryColor = Color(0xFFE91E63) // Magenta vibrante
-    val secondaryColor = Color(0xFF9C27B0) // Púrpura
-    val backgroundColor = Color(0xFF121212) // Fondo oscuro
-    val surfaceColor = Color(0xFF1E1E1E) // Superficie oscura
+    val primaryColor = Color(0xFFE91E63)
+    val surfaceColor = Color(0xFF1E1E1E)
+    val backgroundColor = Color(0xFF121212)
     val textColor = Color.White
-    val accentColor = Color(0xFFFF4081) // Magenta más claro
 
-    // Estado del formulario
     var name by remember { mutableStateOf("") }
     var gender by remember { mutableStateOf(Gender.HOMBRE) }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var isLoaded by remember { mutableStateOf(false) }
     val isEditMode = profileId != null
-
     val scope = rememberCoroutineScope()
+
     val picker = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? -> imageUri = uri }
 
-    // Animación de entrada
     var visible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         delay(300)
         visible = true
     }
 
-    // Cargar datos si estamos en modo edición
     LaunchedEffect(profileId) {
         if (isEditMode && !isLoaded) {
             profileRepository.getAllProfiles().find { it.id == profileId }?.let {
@@ -83,45 +109,22 @@ fun CreateProfileScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(brush = Brush.verticalGradient(
-                colors = listOf(backgroundColor, surfaceColor)
-            ))
+            .background(Brush.verticalGradient(listOf(backgroundColor, surfaceColor)))
     ) {
-        // Fondo decorativo
-        FloatingBackgroundElements()
-
-        // Contenido principal con animación
         AnimatedVisibility(
             visible = visible,
-            enter = fadeIn() + slideInVertically { -40 },
-            exit = fadeOut() + slideOutVertically { -40 },
+            enter = fadeIn(),
+            exit = fadeOut(),
             modifier = Modifier.fillMaxSize()
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(24.dp)
-                    .verticalScroll(rememberScrollState()),
+                    .verticalScroll(rememberScrollState())
+                    .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(24.dp)
+                verticalArrangement = Arrangement.Center
             ) {
-                // Título animado
-                AnimatedContent(
-                    targetState = isEditMode,
-                    transitionSpec = {
-                        fadeIn() with fadeOut()
-                    }
-                ) { editMode ->
-                    Text(
-                        text = if (editMode) "Editar Perfil" else "Crear Perfil",
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = primaryColor,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-
-                // Imagen de perfil con animación
                 Box(
                     modifier = Modifier
                         .size(150.dp)
@@ -146,15 +149,16 @@ fun CreateProfileScreen(
                             modifier = Modifier.size(64.dp)
                         )
                     }
-
-                    // Badge de cámara
                     Box(
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
-                            .size(48.dp)
+                            .offset((-8).dp, (-8).dp)
+                            .size(36.dp)
                             .clip(CircleShape)
                             .background(primaryColor)
-                            .padding(8.dp)
+                            .border(2.dp, Color.White, CircleShape)
+                            .clickable { picker.launch("image/*") }
+                            .padding(6.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.PhotoCamera,
@@ -165,41 +169,34 @@ fun CreateProfileScreen(
                     }
                 }
 
-                // Campo de nombre
+                Spacer(modifier = Modifier.height(16.dp))
+
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = {
-                        Text(
-                            "Nombre",
-                            color = textColor.copy(alpha = 0.8f)
-                        )
-                    },
+                    label = { Text("Nombre", color = textColor.copy(alpha = 0.8f)) },
                     modifier = Modifier.fillMaxWidth(),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = surfaceColor.copy(alpha = 0.5f),
-                        unfocusedContainerColor = surfaceColor.copy(alpha = 0.3f),
-                        focusedTextColor = textColor,
-                        unfocusedTextColor = textColor,
+                    singleLine = true,
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = primaryColor,
+                        unfocusedBorderColor = textColor.copy(alpha = 0.6f),
+                        cursorColor = primaryColor,
                         focusedLabelColor = primaryColor,
                         unfocusedLabelColor = textColor.copy(alpha = 0.6f),
-                        focusedIndicatorColor = primaryColor,
-                        unfocusedIndicatorColor = primaryColor.copy(alpha = 0.5f),
-                        cursorColor = primaryColor
+                        focusedTextColor = textColor,     // ✅ Cambiado
+                        unfocusedTextColor = textColor    // ✅ Añadido
                     ),
-                    singleLine = true,
-                    textStyle = LocalTextStyle.current.copy(
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Medium
-                    )
+                    textStyle = LocalTextStyle.current.copy(fontSize = 18.sp)
                 )
 
-                // Selector de género
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 Text(
                     text = "Género",
                     color = textColor.copy(alpha = 0.8f),
-                    modifier = Modifier.fillMaxWidth(),
-                    fontSize = 16.sp
+                    fontSize = 16.sp,
+                    modifier = Modifier.align(Alignment.Start)
                 )
 
                 Row(
@@ -208,29 +205,16 @@ fun CreateProfileScreen(
                 ) {
                     Gender.values().forEach { g ->
                         val isSelected = gender == g
-                        var isPressed by remember { mutableStateOf(false) }
-
-                        val elevation by animateDpAsState(
-                            targetValue = if (isPressed) 4.dp else if (isSelected) 8.dp else 4.dp,
-                            animationSpec = tween(100)
-                        )
-
                         Card(
                             onClick = { gender = g },
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(48.dp),
+                            modifier = Modifier.weight(1f).height(48.dp),
                             shape = RoundedCornerShape(12.dp),
                             colors = CardDefaults.cardColors(
-                                containerColor = if (isSelected) {
-                                    primaryColor.copy(alpha = 0.2f)
-                                } else {
-                                    surfaceColor.copy(alpha = 0.5f)
-                                }
+                                containerColor = if (isSelected) primaryColor.copy(alpha = 0.2f)
+                                else surfaceColor.copy(alpha = 0.5f)
                             ),
                             elevation = CardDefaults.cardElevation(
-                                defaultElevation = elevation,
-                                pressedElevation = 4.dp
+                                defaultElevation = 6.dp
                             ),
                             border = BorderStroke(
                                 width = 1.dp,
@@ -251,14 +235,7 @@ fun CreateProfileScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.weight(1f))
-
-                // Botón de guardar
-                var isButtonPressed by remember { mutableStateOf(false) }
-                val buttonScale by animateFloatAsState(
-                    targetValue = if (isButtonPressed) 0.95f else 1f,
-                    animationSpec = tween(100)
-                )
+                Spacer(modifier = Modifier.height(24.dp))
 
                 Button(
                     onClick = {
@@ -269,7 +246,6 @@ fun CreateProfileScreen(
                                 gender = gender,
                                 image = imageUri?.toString()
                             )
-
                             if (isEditMode) {
                                 profileRepository.updateProfile(profile)
                                 withContext(Dispatchers.Main) {
@@ -281,10 +257,7 @@ fun CreateProfileScreen(
                                 val newId = profileRepository.insertProfile(profile)
                                 withContext(Dispatchers.Main) {
                                     navController.navigate(
-                                        Routes.HOME_WITH_ARG.replace(
-                                            "{profileId}",
-                                            newId.toInt().toString()
-                                        )
+                                        Routes.HOME_WITH_ARG.replace("{profileId}", newId.toInt().toString())
                                     ) {
                                         popUpTo(Routes.PROFILE_SELECTOR) { inclusive = true }
                                     }
@@ -295,35 +268,16 @@ fun CreateProfileScreen(
                     enabled = name.isNotBlank(),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp)
-                        .graphicsLayer {
-                            scaleX = buttonScale
-                            scaleY = buttonScale
-                        },
+                        .height(56.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = primaryColor,
                         disabledContainerColor = primaryColor.copy(alpha = 0.3f)
-                    ),
-                    elevation = ButtonDefaults.buttonElevation(
-                        defaultElevation = 8.dp,
-                        pressedElevation = 4.dp
-                    ),
-                    interactionSource = remember { MutableInteractionSource() }.also { source ->
-                        LaunchedEffect(source) {
-                            source.interactions.collect {
-                                when (it) {
-                                    is PressInteraction.Press -> isButtonPressed = true
-                                    is PressInteraction.Release -> isButtonPressed = false
-                                    is PressInteraction.Cancel -> isButtonPressed = false
-                                }
-                            }
-                        }
-                    }
+                    )
                 ) {
                     Text(
                         text = if (isEditMode) "ACTUALIZAR PERFIL" else "CREAR PERFIL",
-                        color = if (name.isNotBlank()) Color.White else textColor.copy(alpha = 0.5f),
+                        color = Color.White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
                         letterSpacing = 1.sp
@@ -331,64 +285,5 @@ fun CreateProfileScreen(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun FloatingBackgroundElements() {
-    Box(modifier = Modifier.fillMaxSize()) {
-        // Elementos decorativos flotantes
-        val infiniteTransition = rememberInfiniteTransition()
-        val floatAnim1 by infiniteTransition.animateFloat(
-            initialValue = 0f,
-            targetValue = 360f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(20000, easing = LinearEasing),
-                repeatMode = RepeatMode.Restart
-            )
-        )
-
-        val floatAnim2 by infiniteTransition.animateFloat(
-            initialValue = 360f,
-            targetValue = 0f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(25000, easing = LinearEasing),
-                repeatMode = RepeatMode.Restart
-            )
-        )
-
-        Box(
-            modifier = Modifier
-                .size(200.dp)
-                .offset(x = (-50).dp, y = (-50).dp)
-                .rotate(floatAnim1)
-                .background(
-                    brush = Brush.radialGradient(
-                        colors = listOf(
-                            Color(0xFFE91E63).copy(alpha = 0.1f),
-                            Color.Transparent
-                        ),
-                        radius = 100f
-                    ),
-                    shape = CircleShape
-                )
-        )
-
-        Box(
-            modifier = Modifier
-                .size(300.dp)
-                .offset(x = 100.dp, y = 200.dp)
-                .rotate(floatAnim2)
-                .background(
-                    brush = Brush.radialGradient(
-                        colors = listOf(
-                            Color(0xFF9C27B0).copy(alpha = 0.1f),
-                            Color.Transparent
-                        ),
-                        radius = 150f
-                    ),
-                    shape = CircleShape
-                )
-        )
     }
 }

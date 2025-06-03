@@ -98,8 +98,10 @@ fun AppNavigation(navController: NavHostController, profileRepository: ProfileRe
         // NUEVAS RUTAS PARA ADMIN USERS LIST Y FORM
         composable(Routes.ADMIN_DASHBOARD) { AdminDashboardScreen(navController) }
         composable(Routes.ADMIN_USERS_LIST) { AdminUsersListScreen(navController) }
+
+        // Aquí la corrección para el argumento opcional userId usando query param
         composable(
-            route = "${Routes.ADMIN_USER_FORM}/{userId?}",
+            route = "${Routes.ADMIN_USER_FORM}?userId={userId}",
             arguments = listOf(
                 navArgument("userId") {
                     type = NavType.StringType
@@ -108,6 +110,7 @@ fun AppNavigation(navController: NavHostController, profileRepository: ProfileRe
                 }
             )
         ) { backStackEntry ->
+
             val userId = backStackEntry.arguments?.getString("userId")
             AdminUserFormScreen(navController, userId)
         }

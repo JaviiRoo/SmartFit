@@ -1,4 +1,3 @@
-// ProfileScreen.kt
 package com.rodriguez.smartfitv2.ui.profile
 
 import androidx.compose.foundation.Image
