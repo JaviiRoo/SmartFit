@@ -11,17 +11,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,23 +19,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PhotoCamera
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -97,7 +72,7 @@ fun CreateProfileScreen(
 
     LaunchedEffect(profileId) {
         if (isEditMode && !isLoaded) {
-            profileRepository.getAllProfiles().find { it.id == profileId }?.let {
+            profileRepository.getAllProfiles().find { it.id == profileId?.toLong() }?.let {
                 name = it.name
                 gender = it.gender
                 imageUri = it.image?.let(Uri::parse)
@@ -183,12 +158,11 @@ fun CreateProfileScreen(
                         cursorColor = primaryColor,
                         focusedLabelColor = primaryColor,
                         unfocusedLabelColor = textColor.copy(alpha = 0.6f),
-                        focusedTextColor = textColor,     // ✅ Cambiado
-                        unfocusedTextColor = textColor    // ✅ Añadido
+                        focusedTextColor = textColor,
+                        unfocusedTextColor = textColor
                     ),
                     textStyle = LocalTextStyle.current.copy(fontSize = 18.sp)
                 )
-
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -207,7 +181,9 @@ fun CreateProfileScreen(
                         val isSelected = gender == g
                         Card(
                             onClick = { gender = g },
-                            modifier = Modifier.weight(1f).height(48.dp),
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(48.dp),
                             shape = RoundedCornerShape(12.dp),
                             colors = CardDefaults.cardColors(
                                 containerColor = if (isSelected) primaryColor.copy(alpha = 0.2f)
@@ -241,7 +217,7 @@ fun CreateProfileScreen(
                     onClick = {
                         scope.launch {
                             val profile = Profile(
-                                id = profileId ?: 0,
+                                id = profileId?.toLong() ?: 0L,
                                 name = name,
                                 gender = gender,
                                 image = imageUri?.toString()
@@ -255,9 +231,13 @@ fun CreateProfileScreen(
                                 }
                             } else {
                                 val newId = profileRepository.insertProfile(profile)
+                                profileRepository.setSelectedProfile(newId)
                                 withContext(Dispatchers.Main) {
                                     navController.navigate(
-                                        Routes.HOME_WITH_ARG.replace("{profileId}", newId.toInt().toString())
+                                        Routes.HOME_WITH_ARG.replace(
+                                            "{profileId}",
+                                            newId.toInt().toString()
+                                        )
                                     ) {
                                         popUpTo(Routes.PROFILE_SELECTOR) { inclusive = true }
                                     }

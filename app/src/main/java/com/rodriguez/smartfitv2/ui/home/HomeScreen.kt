@@ -1,15 +1,40 @@
 package com.rodriguez.smartfitv2.ui.home
 
+<<<<<<< HEAD
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+=======
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
+>>>>>>> origin/main
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.*
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
+<<<<<<< HEAD
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.Search
+=======
 import androidx.compose.material.icons.filled.*
+>>>>>>> origin/main
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
@@ -19,12 +44,22 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.text.*
+<<<<<<< HEAD
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+=======
 import androidx.compose.ui.text.font.*
 import androidx.compose.ui.text.style.*
 import androidx.compose.ui.unit.*
+>>>>>>> origin/main
 import androidx.navigation.NavController
 import com.rodriguez.smartfitv2.navigation.Routes
 import com.rodriguez.smartfitv2.ui.theme.SmartFitv2Theme
+import com.rodriguez.smartfitv2.viewmodel.AvatarConfigViewModel
 import com.rodriguez.smartfitv2.viewmodel.ProfileViewModel
 import kotlinx.coroutines.delay
 
@@ -33,9 +68,12 @@ import kotlinx.coroutines.delay
 fun HomeScreen(
     navController: NavController,
     profileViewModel: ProfileViewModel,
+    avatarConfigViewModel: AvatarConfigViewModel,
     selectedProfileId: Int
 ) {
     SmartFitv2Theme {
+<<<<<<< HEAD
+=======
         // Colores personalizados
         val primaryColor = Color(0xFFE91E63) // Magenta vibrante
         val secondaryColor = Color(0xFF9C27B0) // Púrpura
@@ -45,8 +83,36 @@ fun HomeScreen(
         val accentColor = Color(0xFFFF4081) // Magenta más claro
 
         // Estado del perfil
+>>>>>>> origin/main
         val currentProfile by profileViewModel.currentProfile.collectAsState()
+        var searchQuery by remember { mutableStateOf("") }
         val userName = currentProfile?.name ?: "Usuario"
+<<<<<<< HEAD
+        val scale = remember { Animatable(0.8f) }
+        val avatarParts by avatarConfigViewModel.avatarParts.collectAsState()
+
+        // Limpieza y extracción de medidas
+        val measures: List<Int?> = (0..3).map { index ->
+            avatarParts.firstOrNull { it.partIndex == index }
+                ?.medida
+                ?.replace("[^\\d]".toRegex(), "") // Elimina todo lo que no sea dígito
+                ?.toIntOrNull()
+        }.also {
+            Log.d("DEBUG_HOME", "Medidas limpias: $it")
+        }
+
+        val userWaist = measures.getOrNull(0)
+        val userChest = measures.getOrNull(1)
+        val userHip = measures.getOrNull(2)
+        val userLeg = measures.getOrNull(3)
+
+        Log.d("DEBUG_HOME", "selectedProfileId: $selectedProfileId")
+        Log.d("DEBUG_HOME", "avatarParts: $avatarParts")
+
+        LaunchedEffect(selectedProfileId) {
+            avatarConfigViewModel.setActiveProfileId(selectedProfileId)
+        }
+=======
 
         // Animaciones
         val infiniteTransition = rememberInfiniteTransition()
@@ -58,6 +124,7 @@ fun HomeScreen(
                 repeatMode = RepeatMode.Reverse
             )
         )
+>>>>>>> origin/main
 
         Box(
             modifier = Modifier
@@ -119,6 +186,24 @@ fun HomeScreen(
                         .padding(bottom = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
+<<<<<<< HEAD
+                    // Barra de búsqueda: NAVEGA PASANDO LAS MEDIDAS
+                    SearchBarWithIcons(
+                        query = searchQuery,
+                        onQueryChange = { searchQuery = it },
+                        onSearchClick = {
+                            Log.d("DEBUG_HOME", "Navegando con medidas: Waist: $userWaist, Chest: $userChest, Hip: $userHip, Leg: $userLeg")
+                            navController.navigate(
+                                "catalog_screen/${searchQuery}/${userWaist ?: -1}/${userChest ?: -1}/${userHip ?: -1}/${userLeg ?: -1}"
+                            )
+                        },
+                        onCameraClick = { navController.navigate(Routes.QRSCANNER) },
+                        onMicClick = {
+                            navController.navigate(
+                                "catalog_screen/${searchQuery}/${userWaist ?: -1}/${userChest ?: -1}/${userHip ?: -1}/${userLeg ?: -1}"
+                            )
+                        }
+=======
                     // Barra de búsqueda mejorada
                     EnhancedSearchBar(
                         onSearchClick = { navController.navigate(Routes.CATALOG) },
@@ -126,6 +211,7 @@ fun HomeScreen(
                         onMicClick = { /* TODO: Acción micrófono */ },
                         primaryColor = primaryColor,
                         textColor = textColor
+>>>>>>> origin/main
                     )
 
                     // Botón de cambio de perfil
@@ -153,6 +239,28 @@ fun HomeScreen(
     }
 }
 
+<<<<<<< HEAD
+// ... (mantén aquí tus composables auxiliares como SearchBarWithIcons, TypewriterPlaceholder, HeroTypewriterButton, etc. tal como los tienes)
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SearchBarWithIcons(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    onSearchClick: () -> Unit,
+    onCameraClick: () -> Unit,
+    onMicClick: () -> Unit
+) {
+    val purple = Color(0xFF9C27B0)
+    OutlinedTextField(
+        value = query,
+        onValueChange = onQueryChange,
+        placeholder = {
+            TypewriterPlaceholder(
+                text = "DIME LO QUE BUSCAS",
+                color = purple
+=======
 @Composable
 private fun FloatingBackgroundElements() {
     Box(modifier = Modifier.fillMaxSize()) {
@@ -164,6 +272,7 @@ private fun FloatingBackgroundElements() {
             animationSpec = infiniteRepeatable(
                 animation = tween(20000, easing = LinearEasing),
                 repeatMode = RepeatMode.Restart
+>>>>>>> origin/main
             )
         )
 
@@ -642,7 +751,133 @@ private fun TypewriterPlaceholder(
     Text(
         text = displayedText,
         color = color,
+<<<<<<< HEAD
+        modifier = Modifier.fillMaxWidth(),
+        textAlign = TextAlign.Center,
+        fontStyle = FontStyle.Italic
+    )
+}
+
+@Composable
+fun HeroTypewriterButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
+) {
+    val fullText = "CONFIGURA TU AVATAR PARA UNA EXPERIENCIA UNICA"
+    val typingSpeed = 100L
+    val blinkDuration = 2000L // tiempo que parpadea "UNICA" (en ms)
+    val blinkInterval = 400L
+
+    val uniqueWord = "UNICA"
+    val baseText = fullText.removeSuffix(uniqueWord)
+    val baseLength = baseText.length
+    val totalLength = fullText.length
+
+    var displayedText by remember { mutableStateOf("") }
+    var blinking by remember { mutableStateOf(false) }
+    var blinkVisible by remember { mutableStateOf(true) }
+
+    // Animación de escala (rebote)
+    val scale = remember { Animatable(0.8f) }
+    LaunchedEffect(Unit) {
+        scale.animateTo(
+            1.1f,
+            animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy)
+        )
+        scale.animateTo(
+            1f,
+            animationSpec = tween(durationMillis = 300)
+        )
+    }
+
+// Animación de resplandor
+    val infiniteTransition = rememberInfiniteTransition()
+    val glow by infiniteTransition.animateFloat(
+        initialValue = 0.95f,
+        targetValue = 1.08f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1200, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "glowAnim"  // label fuera de infiniteRepeatable
+    )
+
+    // Efecto máquina de escribir + parpadeo
+    LaunchedEffect(Unit) {
+        while (true) {
+            // Escribir texto carácter a carácter
+            for (i in 1..totalLength) {
+                displayedText = fullText.substring(0, i)
+                delay(typingSpeed)
+            }
+            // Parpadeo de "UNICA"
+            blinking = true
+            repeat((blinkDuration / blinkInterval).toInt()) {
+                blinkVisible = true
+                delay(blinkInterval / 2)
+                blinkVisible = false
+                delay(blinkInterval / 2)
+            }
+            blinking = false
+            // Borrar texto y reiniciar
+            displayedText = ""
+            delay(400)
+        }
+    }
+
+    // Construir el texto con parpadeo de "UNICA"
+    val annotatedString = buildAnnotatedString {
+        if (displayedText.length <= baseLength) {
+            append(displayedText)
+        } else if (displayedText.length < totalLength) {
+            append(displayedText)
+        } else {
+            append(baseText)
+            withStyle(
+                style = SpanStyle(
+                    color = Color.White.copy(alpha = if (blinking && !blinkVisible) 0f else 1f),
+                    fontWeight = FontWeight.Bold
+                )
+            ) {
+                append(uniqueWord)
+            }
+        }
+    }
+
+    Box(
+        modifier = modifier
+            .shadow(24.dp, RoundedCornerShape(32.dp), ambientColor = Color(0xFF9C27B0).copy(alpha = 0.3f))
+            .graphicsLayer {
+                scaleX = scale.value * glow
+                scaleY = scale.value * glow
+            }
+            .fillMaxWidth(0.9f)
+            .height(90.dp)
+            .background(
+                brush = Brush.horizontalGradient(
+                    colors = listOf(Color(0xFF9C27B0), Color(0xFF7C4DFF))
+                ),
+                shape = RoundedCornerShape(32.dp)
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = annotatedString,
+            color = Color.White,
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp,
+            textAlign = TextAlign.Center
+        )
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .clickable { onClick() }
+        )
+    }
+}
+=======
         fontSize = 16.sp,
         modifier = modifier
     )
 }
+>>>>>>> origin/main

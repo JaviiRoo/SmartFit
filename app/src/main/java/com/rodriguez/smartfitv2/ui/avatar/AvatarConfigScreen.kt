@@ -60,10 +60,13 @@ fun AvatarConfigScreen(
 
     LaunchedEffect(parteActualizada?.value) {
         parteActualizada?.value?.let { (parteIndex, medida) ->
-            avatarConfigViewModel.registrarMedida(parteIndex, medida)
+            // LIMPIA la medida antes de guardar
+            val soloNumero = medida.replace("[^\\d]".toRegex(), "")
+            avatarConfigViewModel.registrarMedida(parteIndex, soloNumero)
             savedStateHandle?.remove<Pair<Int, String>>("parte_actualizada")
         }
     }
+
 
     // UI principal
     Column(

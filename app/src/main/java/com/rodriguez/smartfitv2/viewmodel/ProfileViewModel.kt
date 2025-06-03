@@ -1,5 +1,7 @@
 package com.rodriguez.smartfitv2.viewmodel
 
+import com.rodriguez.smartfitv2.data.repository.ClothingRepository
+import com.rodriguez.smartfitv2.data.model.ClothingItem
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -13,7 +15,10 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.launch
 
-class ProfileViewModel(private val repository: ProfileRepository) : ViewModel() {
+class ProfileViewModel(
+    private val repository: ProfileRepository,
+    private val clothingRepository: ClothingRepository
+) : ViewModel() {
     private val _profiles = MutableStateFlow<List<Profile>>(emptyList())
     val profiles: StateFlow<List<Profile>> = _profiles
 
@@ -35,10 +40,12 @@ class ProfileViewModel(private val repository: ProfileRepository) : ViewModel() 
 
     fun addProfile(profile: Profile) {
         viewModelScope.launch {
-            repository.insertProfile(profile)
+            val newId = repository.insertProfile(profile) // obteniene el ID del nuevo perfil
+            repository.setSelectedProfile(newId)          // Lo selecciona como activo
             loadProfiles()
         }
     }
+
 
     fun updateProfile(profile: Profile) {
         viewModelScope.launch {
@@ -54,9 +61,24 @@ class ProfileViewModel(private val repository: ProfileRepository) : ViewModel() 
         }
     }
 
-    fun selectProfile(profileId: Int) {
+    fun selectProfile(profileId: Long) {
         viewModelScope.launch {
             repository.setSelectedProfile(profileId)
         }
     }
+//FUNCION PARA LA CONSULTA DE BUSQUEDA QUE TENGA LA MEDIDA IGUAL AL PERFIL EN FUNCION DEL STOCK
+fun searchClothes(query: String, measures: List<Int?>): List<ClothingItem> {
+    return clothingRepository.getAllClothes().filter { item ->
+        item.name.contains(query, ignoreCase = true) &&
+
+                (measures[0]?.let { Math.abs(item.waist - it) <= 1 } ?: true) &&
+                (measures[1]?.let { Math.abs(item.chest - it) <= 1 } ?: true) &&
+                (measures[2]?.let { Math.abs(item.hip - it) <= 1 } ?: true) &&
+                (measures[3]?.let { Math.abs(item.leg - it) <= 1 } ?: true) &&
+                //en un futuro añadiriamos las otras partes del cuerpo a partir de aqui
+                // y de la misma forma que tenemos en las lineas de arriba para adaptarlo
+                //a uno de los 4 avatares
+                item.stock > 0
+    }
+}
 }

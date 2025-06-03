@@ -27,7 +27,7 @@ class ProfileRepository(private val profileDao: ProfileDao) {
         profileDao.deleteProfile(profile)
 
     // Obtener perfil por ID
-    private suspend fun fetchProfileById(id: Int): Profile? = try {
+    private suspend fun fetchProfileById(id: Long): Profile? = try {
         profileDao.getProfileById(id)
     } catch (e: Exception) {
         null
@@ -37,8 +37,8 @@ class ProfileRepository(private val profileDao: ProfileDao) {
     fun getSelectedProfileFlow(): StateFlow<Profile?> = _selectedProfile
 
     // Establecer perfil seleccionado
-    suspend fun setSelectedProfile(profileId: Int) {
-        val profile = fetchProfileById(profileId)
+    suspend fun setSelectedProfile(profileId: Long) {
+        val profile = profileDao.getProfileById(profileId)
         _selectedProfile.value = profile
     }
 
